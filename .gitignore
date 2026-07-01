@@ -1,0 +1,53 @@
+### Secrets ###
+.env
+!.env.example
+
+### Gradle / Java ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+.run/
+
+### STS / Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+### VS Code ###
+.vscode/
+
+### Web (Angular) ###
+node_modules/
+/app/web/dist/
+/app/web/out-tsc/
+/app/web/.angular/
+/app/web/coverage/
+npm-debug.log*
+yarn-error.log*
+
+### Ops tool ###
+/tools/codeclash/codeclash
+
+### Logs / OS ###
+*.log
+nohup.out
+.DS_Store
+Thumbs.db
