@@ -1,0 +1,154 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: auth-service
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}
+      properties:
+        allow.auto.create.topics: false
+    producer:
+      compression-type: zstd
+      properties:
+        max.request.size: 16777216
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+  mvc:
+    apiversion:
+      use:
+        path-segment: 1
+      supported: 1
+      detect-supported: false
+  threads:
+    virtual:
+      enabled: true
+
+logging:
+  level:
+    org.apache.kafka: warn
+    org.springframework.kafka.listener.KafkaMessageListenerContainer: warn
+
+jdbc:
+  includes: query
+
+management:
+  observations:
+    annotations:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+namastack:
+  outbox:
+    jdbc:
+      table-names:
+        record: outbox_records
+        instance: outbox_instances
+        partition: outbox_partitions
+      schema-initialization:
+        enabled: false
+
+springdoc:
+  default-produces-media-type: application/json
+
+codeclash:
+  openapi:
+    title: Auth Service
+    description: Users, roles, permissions and sessions
+  user:
+    default-role: user
+    cdc-topic:
+      name: auth.user.cdc
+      partitions: 3
+    password:
+      argon2:
+        salt-length: 16
+        hash-length: 32
+        parallelism: 1
+        memory-kib: 19456
+        iterations: 2
+  role:
+    default:
+      - name: superadmin
+        description: Unrestricted access to everything
+        permissions:
+          - auth:permission:read
+          - auth:role:read
+          - auth:role:write
+          - auth:session:read
+          - auth:session:read_own
+          - auth:session:write
+          - auth:session:write_own
+          - auth:user:write
+          - auth:user:write_own
+          - auth:user:write_role
+          - auth:user:write_role_own
+          - auth:user:write_is_verified
+          - auth:user:write_is_verified_own
+          - auth:user:write_username
+          - auth:user:write_username_own
+          - auth:user:read_email
+          - auth:user:read_email_own
+          - auth:user:read_role
+          - auth:user:read_role_own
+          - contest:contest:write
+          - contest:contest:read_questions
+          - problem:tag:write
+          - problem:category:write
+          - problem:question:write
+          - problem:question:read_is_private
+          - problem:question:write_is_private
+          - problem:test_case:write
+          - problem:test_case:read_is_private
+          - problem:test_case:write_is_private
+          - problem:submission:write
+          - problem:submission:delete
+          - problem:submission:delete_own
+      - name: admin
+        description: Administrative access
+        permissions:
+          - auth:permission:read
+          - auth:role:read
+          - auth:session:read
+          - auth:session:read_own
+          - auth:session:write
+          - auth:session:write_own
+          - auth:user:write
+          - auth:user:write_own
+          - auth:user:write_role
+          - auth:user:write_username
+          - auth:user:write_username_own
+          - auth:user:read_email
+          - auth:user:read_email_own
+          - auth:user:read_role
+          - auth:user:read_role_own
+          - contest:contest:write
+          - contest:contest:read_questions
+          - problem:tag:write
+          - problem:category:write
+          - problem:question:write
+          - problem:question:read_is_private
+          - problem:question:write_is_private
+          - problem:test_case:write
+          - problem:test_case:read_is_private
+          - problem:test_case:write_is_private
+          - problem:submission:write
+          - problem:submission:delete
+          - problem:submission:delete_own
+      - name: user
+        description: Standard registered user
+        permissions:
+          - auth:session:read_own
+          - auth:session:write_own
+          - auth:user:write_own
+          - auth:user:write_username_own
+          - auth:user:read_email_own
+          - auth:user:read_role_own
+          - problem:submission:write
+          - problem:submission:delete_own
