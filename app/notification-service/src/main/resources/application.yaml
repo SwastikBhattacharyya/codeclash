@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: notification-service
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}
+      properties:
+        allow.auto.create.topics: false
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      compression-type: zstd
+      properties:
+        max.request.size: 16777216
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+  mail:
+    properties:
+      mail.smtp.connectiontimeout: 5000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
+  threads:
+    virtual:
+      enabled: true
+
+logging:
+  level:
+    org.apache.kafka: warn
+    org.springframework.kafka.listener.KafkaMessageListenerContainer: warn
+
+jdbc:
+  includes: query
+
+management:
+  observations:
+    annotations:
+      enabled: true
+
+codeclash:
+  user:
+    cdc-consumer:
+      topic: auth.user.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+    verification-mail:
+      from: no-reply@codeclash.dev
+      subject: Verify your CodeClash account
