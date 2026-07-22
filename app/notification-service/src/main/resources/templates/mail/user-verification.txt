@@ -1,0 +1,7 @@
+Hi [(${name})],
+
+Use this token to verify your CodeClash account:
+
+[(${token})]
+
+If you didn't create an account, you can ignore this email.

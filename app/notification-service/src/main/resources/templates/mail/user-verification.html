@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Verify your CodeClash account</title>
+</head>
+<body>
+<p th:text="|Hi ${name},|">Hi,</p>
+<p>Use this token to verify your CodeClash account:</p>
+<pre><code th:text="${token}">token</code></pre>
+<p>If you didn't create an account, you can ignore this email.</p>
+</body>
+</html>
