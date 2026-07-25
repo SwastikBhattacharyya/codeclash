@@ -1,0 +1,30 @@
+server:
+  port: ${GATEWAY_PORT:8000}
+
+codeclash:
+  auth:
+    base-url: http://localhost:${AUTH_PORT:8001}
+  services:
+    auth: http://localhost:${AUTH_PORT:8001}
+
+logging:
+  level:
+    com.codeclash: debug
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:${OTLP_HTTP_PORT:8932}/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:${OTLP_HTTP_PORT:8932}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:${OTLP_HTTP_PORT:8932}/v1/logs

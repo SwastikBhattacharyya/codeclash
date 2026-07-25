@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: gateway-service
+  threads:
+    virtual:
+      enabled: true
+  http:
+    clients:
+      connect-timeout: 1s
+      read-timeout: 30s
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          trusted-proxies: "(?!)"
+          forwarded-request-headers-filter:
+            enabled: false
+          routes:
+            - id: auth
+              uri: ${codeclash.services.auth}
+              predicates:
+                - Path=/api/*/sessions/**,/api/*/users/**,/api/*/roles/**,/api/*/permissions/**
+            - id: auth-docs
+              uri: ${codeclash.services.auth}
+              predicates:
+                - Path=/v3/api-docs/auth
+              filters:
+                - SetPath=/v3/api-docs
+
+management:
+  observations:
+    annotations:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+springdoc:
+  api-docs:
+    path: /gateway/v3/api-docs
+  swagger-ui:
+    urls:
+      - name: Auth
+        url: /v3/api-docs/auth
+
+codeclash:
+  auth:
+    connect-timeout: 1s
+    read-timeout: 2s
