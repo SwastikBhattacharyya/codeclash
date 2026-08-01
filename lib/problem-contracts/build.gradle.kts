@@ -1,0 +1,27 @@
+plugins {
+  `java-library`
+}
+
+group = "com.codeclash"
+version = "0.0.1-SNAPSHOT"
+description = "problem-contracts"
+
+java {
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation(platform(libs.spring.boot.bom))
+
+  api(project(":lib:common"))
+}
+
+tasks.withType<JavaCompile>().configureEach {
+  options.compilerArgs.add("-parameters")
+}
