@@ -69,6 +69,7 @@ dependencies {
 
   implementation(project(":lib:auth-contracts"))
   implementation(project(":lib:common"))
+  implementation(project(":lib:problem-contracts"))
 
   developmentOnly(platform(libs.spring.boot.bom))
   developmentOnly(libs.spring.boot.devtools)
