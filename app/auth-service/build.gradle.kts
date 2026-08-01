@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.codeclash"
-version = "0.1.0"
+version = "0.2.0"
 description = "auth-service"
 
 java {
