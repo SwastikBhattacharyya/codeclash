@@ -1,0 +1,45 @@
+<ng-template #item let-toast>
+  <div
+    class="pointer-events-auto flex w-full max-w-sm animate-toast-in items-start gap-3 rounded-control border border-line bg-raised py-3 pr-2 pl-4 text-sm text-ink shadow-overlay"
+    (pointerenter)="store.pause(toast.id)"
+    (pointerleave)="store.resume(toast.id)"
+    (focusin)="store.pause(toast.id)"
+    (focusout)="store.resume(toast.id)"
+  >
+    @switch (toast.tone) {
+      @case ('error') {
+        <svg lucideCircleExclamationPoint class="mt-0.5 size-5 shrink-0 text-danger"></svg>
+      }
+      @case ('success') {
+        <svg lucideCircleCheck class="mt-0.5 size-5 shrink-0 text-success"></svg>
+      }
+      @default {
+        <svg lucideInfo class="mt-0.5 size-5 shrink-0 text-ink-muted"></svg>
+      }
+    }
+    <p class="min-w-0 flex-1 py-0.5">{{ toast.message }}</p>
+    <button
+      type="button"
+      class="-my-1 inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-chip text-ink-muted hover:text-ink"
+      aria-label="Dismiss notification"
+      (click)="store.dismiss(toast.id)"
+    >
+      <svg lucideX class="size-4"></svg>
+    </button>
+  </div>
+</ng-template>
+
+<div
+  class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex flex-col items-center gap-2 p-4 sm:items-end sm:p-6"
+>
+  <div role="alert" class="flex w-full flex-col items-center gap-2 sm:items-end">
+    @for (toast of errors(); track toast.id) {
+      <ng-container [ngTemplateOutlet]="item" [ngTemplateOutletContext]="{ $implicit: toast }" />
+    }
+  </div>
+  <div role="status" class="flex w-full flex-col items-center gap-2 sm:items-end">
+    @for (toast of notices(); track toast.id) {
+      <ng-container [ngTemplateOutlet]="item" [ngTemplateOutletContext]="{ $implicit: toast }" />
+    }
+  </div>
+</div>
