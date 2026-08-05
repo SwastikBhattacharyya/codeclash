@@ -1,0 +1,45 @@
+<aside
+  aria-label="About CodeClash"
+  class="flex h-full flex-col justify-between gap-12 bg-board p-10 text-board-ink xl:p-14 3xl:p-20"
+>
+  <div class="flex flex-col gap-6">
+    <cc-wordmark size="xl" />
+    <p class="max-w-md text-lg text-board-muted">
+      Solve problems in C++, Java or Python, then race the clock in timed contests.
+    </p>
+  </div>
+
+  <div aria-hidden="true" class="w-full max-w-lg">
+    <div class="mb-4 flex items-baseline justify-between gap-4">
+      <p class="text-xl font-extrabold font-stretch-condensed">Weekly sprint</p>
+      <p class="text-lg font-semibold text-accent tabular-nums">01:42:07 left</p>
+    </div>
+    <table class="w-full border-collapse text-base tabular-nums">
+      <thead>
+        <tr class="text-sm text-board-muted">
+          <th class="w-12 pb-2 text-left font-medium">Rank</th>
+          <th class="pb-2 text-left font-medium">Handle</th>
+          <th class="pb-2 text-right font-medium">Solved</th>
+          <th class="pb-2 text-right font-medium">Penalty</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows; track row.rank) {
+          <tr class="border-t border-board-line">
+            <td class="py-3">
+              <span
+                class="inline-flex size-7 items-center justify-center rounded-chip text-sm font-bold"
+                [class.bg-accent]="row.rank === 1"
+                [class.text-on-accent]="row.rank === 1"
+                >{{ row.rank }}</span
+              >
+            </td>
+            <td class="py-3 font-medium">{{ row.handle }}</td>
+            <td class="py-3 text-right">{{ row.solved }}</td>
+            <td class="py-3 text-right text-board-muted">{{ row.penalty }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</aside>

@@ -1,0 +1,14 @@
+<div class="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+  <cc-board-panel class="sticky top-0 hidden h-dvh lg:block" />
+  <div class="flex min-h-dvh flex-col">
+    <header class="flex items-center justify-between gap-4 px-4 py-4 sm:px-8 lg:justify-end">
+      <cc-wordmark class="lg:hidden" />
+      <cc-theme-toggle />
+    </header>
+    <main class="flex flex-1 justify-center px-4 pt-4 pb-12 sm:items-center sm:px-8 sm:pt-0">
+      <div class="w-full max-w-md">
+        <router-outlet />
+      </div>
+    </main>
+  </div>
+</div>
