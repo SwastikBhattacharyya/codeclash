@@ -1,0 +1,55 @@
+<cc-panel class="sm:border-0 sm:bg-transparent sm:p-0">
+  <h1 class="text-3xl text-ink sm:text-4xl">Verify your email</h1>
+  @if (justSignedUp) {
+    <p class="mt-3 text-ink-muted">
+      Your account is created. We sent a verification code to your email. Paste it below to finish.
+    </p>
+  } @else {
+    <p class="mt-3 text-ink-muted">
+      Enter your username and the verification code from the email we sent when you signed up.
+    </p>
+  }
+
+  @if (hint === 'unverified') {
+    <cc-alert tone="info" class="mt-6"
+      >Your email isn't verified yet. Verify it to sign in.</cc-alert
+    >
+  } @else if (hint === 'username') {
+    <cc-alert tone="info" class="mt-6">
+      Your email isn't verified yet. Enter your username (not your email) and the code to verify it.
+    </cc-alert>
+  }
+  @if (formError(); as message) {
+    <cc-alert tone="error" class="mt-6">{{ message }}</cc-alert>
+  }
+
+  <form [formRoot]="verifyForm" class="mt-8 flex flex-col gap-5">
+    <cc-text-field
+      autocapitalize="none"
+      [spellcheck]="false"
+      [formField]="verifyForm.username"
+      label="Username"
+      autocomplete="username"
+    />
+    <cc-text-field
+      autocapitalize="none"
+      [spellcheck]="false"
+      [formField]="verifyForm.token"
+      label="Verification code"
+      hint="Looks like 3f2b8c1e-4d5a-4b6c-8e7f-9a0b1c2d3e4f. Can't find the email? Check your spam folder."
+      autocomplete="one-time-code"
+    />
+    <button ccButton type="submit" class="w-full" [loading]="verifyForm().submitting()">
+      Verify email
+    </button>
+  </form>
+
+  <p class="mt-6 text-sm text-ink-muted">
+    Already verified?
+    <a
+      [routerLink]="signInPath"
+      class="rounded-chip font-semibold text-ink underline underline-offset-4 hover:no-underline"
+      >Sign in</a
+    >
+  </p>
+</cc-panel>

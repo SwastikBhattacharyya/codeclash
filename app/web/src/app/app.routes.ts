@@ -20,6 +20,12 @@ export const routes: Routes = [
         canActivate: [guestGuard],
         loadComponent: () => import('./features/auth/sign-in/sign-in').then((m) => m.SignIn),
       },
+      {
+        path: 'verify-email',
+        title: 'Verify email | CodeClash',
+        loadComponent: () =>
+          import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+      },
     ],
   },
   {
