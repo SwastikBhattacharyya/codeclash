@@ -1,0 +1,31 @@
+<div>
+  <label [for]="id" class="mb-1.5 block text-sm font-medium text-ink">{{ label() }}</label>
+  <input
+    #control
+    [id]="id"
+    [type]="type()"
+    [value]="value()"
+    [attr.name]="name() || null"
+    [attr.autocomplete]="autocomplete()"
+    [attr.inputmode]="inputmode()"
+    [attr.placeholder]="placeholder() || null"
+    [attr.autocapitalize]="autocapitalize()"
+    [attr.spellcheck]="spellcheck()"
+    [attr.aria-invalid]="showError() || null"
+    [attr.aria-describedby]="describedBy()"
+    [disabled]="disabled()"
+    [readOnly]="readonly()"
+    [required]="required()"
+    (input)="onInput($event)"
+    (blur)="touch.emit()"
+    class="min-h-11 w-full rounded-control border border-control bg-raised px-3 text-base text-ink transition-colors placeholder:text-ink-muted hover:border-ink-muted focus-visible:border-ink disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-danger"
+  />
+  @if (hint()) {
+    <p [id]="hintId" class="mt-1.5 text-sm text-ink-muted">{{ hint() }}</p>
+  }
+  <div [id]="errorId" aria-live="polite">
+    @if (showError()) {
+      <p class="mt-1.5 text-sm text-danger">{{ errorMessage() }}</p>
+    }
+  </div>
+</div>

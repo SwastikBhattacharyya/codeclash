@@ -1,0 +1,12 @@
+@switch (tone()) {
+  @case ('error') {
+    <svg lucideCircleExclamationPoint class="mt-0.5 size-5 shrink-0 text-danger"></svg>
+  }
+  @case ('success') {
+    <svg lucideCircleCheck class="mt-0.5 size-5 shrink-0 text-success"></svg>
+  }
+  @default {
+    <svg lucideInfo class="mt-0.5 size-5 shrink-0 text-ink-muted"></svg>
+  }
+}
+<div class="min-w-0 flex-1"><ng-content /></div>
