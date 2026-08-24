@@ -20,10 +20,20 @@ spring:
               uri: ${codeclash.services.auth}
               predicates:
                 - Path=/api/*/sessions/**,/api/*/users/**,/api/*/roles/**,/api/*/permissions/**
+            - id: problem
+              uri: ${codeclash.services.problem}
+              predicates:
+                - Path=/api/*/questions/**,/api/*/categories/**,/api/*/tags/**,/api/*/submissions/**
             - id: auth-docs
               uri: ${codeclash.services.auth}
               predicates:
                 - Path=/v3/api-docs/auth
+              filters:
+                - SetPath=/v3/api-docs
+            - id: problem-docs
+              uri: ${codeclash.services.problem}
+              predicates:
+                - Path=/v3/api-docs/problem
               filters:
                 - SetPath=/v3/api-docs
 
@@ -43,6 +53,8 @@ springdoc:
     urls:
       - name: Auth
         url: /v3/api-docs/auth
+      - name: Problem
+        url: /v3/api-docs/problem
 
 codeclash:
   auth:

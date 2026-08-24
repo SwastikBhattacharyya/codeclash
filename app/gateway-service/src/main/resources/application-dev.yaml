@@ -6,6 +6,7 @@ codeclash:
     base-url: http://localhost:${AUTH_PORT:8001}
   services:
     auth: http://localhost:${AUTH_PORT:8001}
+    problem: http://localhost:${PROBLEM_PORT:8002}
 
 logging:
   level:
