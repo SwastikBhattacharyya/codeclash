@@ -1,0 +1,106 @@
+<div class="flex min-h-dvh flex-col" [class]="fullWidth() ? 'lg:h-dvh' : ''">
+  <header class="border-b border-line bg-raised">
+    <div
+      class="mx-auto flex min-h-16 w-full items-center gap-3 px-4 py-2 sm:px-8 lg:gap-8"
+      [class.max-w-6xl]="!fullWidth()"
+    >
+      <cc-wordmark />
+      <nav aria-label="Main" class="hidden md:block">
+        <ul class="flex items-center gap-1">
+          @for (link of links(); track link.path) {
+            <li>
+              <a
+                [routerLink]="link.path"
+                [attr.aria-current]="link.active ? 'page' : null"
+                class="inline-flex min-h-10 items-center rounded-chip border-b-2 px-3 text-sm font-medium transition-colors hover:text-ink"
+                [class.border-accent]="link.active"
+                [class.text-ink]="link.active"
+                [class.border-transparent]="!link.active"
+                [class.text-ink-muted]="!link.active"
+                >{{ link.label }}</a
+              >
+            </li>
+          }
+        </ul>
+      </nav>
+
+      <div class="ml-auto flex items-center gap-2 sm:gap-3">
+        <cc-theme-toggle class="hidden md:block" />
+        @if (auth.isAuthenticated()) {
+          <cc-user-menu />
+        } @else {
+          <div class="hidden items-center gap-2 md:flex">
+            <a ccButton variant="ghost" [routerLink]="signInPath" [queryParams]="signInParams()"
+              >Sign in</a
+            >
+            <a ccButton [routerLink]="signUpPath">Sign up</a>
+          </div>
+        }
+        <button
+          #menuToggle
+          type="button"
+          class="inline-flex size-11 cursor-pointer items-center justify-center rounded-control border border-control bg-raised text-ink md:hidden"
+          [attr.aria-expanded]="menuOpen()"
+          [attr.aria-controls]="menuOpen() ? menuId : null"
+          aria-label="Menu"
+          (click)="toggleMenu()"
+        >
+          @if (menuOpen()) {
+            <svg lucideX class="size-5"></svg>
+          } @else {
+            <svg lucideMenu class="size-5"></svg>
+          }
+        </button>
+      </div>
+    </div>
+
+    @if (menuOpen()) {
+      <div
+        [id]="menuId"
+        class="animate-menu-in border-t border-line px-4 pt-2 pb-4 sm:px-8 md:hidden"
+      >
+        <nav aria-label="Main">
+          <ul class="flex flex-col">
+            @for (link of links(); track link.path) {
+              <li>
+                <a
+                  [routerLink]="link.path"
+                  [attr.aria-current]="link.active ? 'page' : null"
+                  class="flex min-h-11 items-center rounded-chip border-l-2 px-3 text-base font-medium"
+                  (click)="closeMenu()"
+                  [class.border-accent]="link.active"
+                  [class.text-ink]="link.active"
+                  [class.border-transparent]="!link.active"
+                  [class.text-ink-muted]="!link.active"
+                  >{{ link.label }}</a
+                >
+              </li>
+            }
+          </ul>
+        </nav>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <cc-theme-toggle />
+          @if (!auth.isAuthenticated()) {
+            <div class="flex gap-2">
+              <a ccButton variant="ghost" [routerLink]="signInPath" [queryParams]="signInParams()"
+                >Sign in</a
+              >
+              <a ccButton [routerLink]="signUpPath">Sign up</a>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </header>
+
+  <main
+    class="mx-auto w-full flex-1"
+    [class]="
+      fullWidth()
+        ? 'px-4 py-4 sm:px-6 lg:flex lg:min-h-0 lg:flex-col lg:py-5'
+        : 'max-w-6xl px-4 py-8 sm:px-8 sm:py-12'
+    "
+  >
+    <router-outlet />
+  </main>
+</div>

@@ -1,0 +1,154 @@
+<div class="flex flex-col gap-8">
+  <div class="flex flex-col gap-2">
+    <h1 class="text-4xl text-ink sm:text-5xl">Problems</h1>
+    <p class="max-w-2xl text-ink-muted">
+      Pick a problem, read the statement and solve it in C++, Java or Python.
+    </p>
+  </div>
+
+  <div class="flex flex-col gap-5">
+    <form [formRoot]="searchForm" role="search" class="flex max-w-xl items-end gap-3">
+      <cc-text-field
+        class="flex-1"
+        [formField]="searchForm.title"
+        label="Search by title"
+        autocomplete="off"
+        [spellcheck]="false"
+      />
+      <button ccButton variant="secondary" type="submit">Search</button>
+    </form>
+
+    @if (categoryChips().length > 0) {
+      <div class="flex flex-col gap-2">
+        <p class="text-sm font-medium text-ink" id="category-filter-label">Categories</p>
+        <ul class="flex flex-wrap gap-2" aria-labelledby="category-filter-label">
+          @for (chip of categoryChips(); track chip.id) {
+            <li>
+              <a
+                [routerLink]="problemsPath"
+                [queryParams]="chipParams('category', chip.id)"
+                queryParamsHandling="merge"
+                [attr.aria-current]="query().category === chip.id ? 'true' : null"
+                class="inline-flex min-h-9 items-center rounded-chip border px-3 text-sm transition-colors"
+                [class.border-ink]="query().category === chip.id"
+                [class.bg-ink]="query().category === chip.id"
+                [class.text-surface]="query().category === chip.id"
+                [class.border-control]="query().category !== chip.id"
+                [class.bg-raised]="query().category !== chip.id"
+                [class.text-ink]="query().category !== chip.id"
+                >{{ chip.name }}</a
+              >
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (tagChips().length > 0) {
+      <div class="flex flex-col gap-2">
+        <p class="text-sm font-medium text-ink" id="tag-filter-label">Tags</p>
+        <ul class="flex flex-wrap gap-2" aria-labelledby="tag-filter-label">
+          @for (chip of tagChips(); track chip.id) {
+            <li>
+              <a
+                [routerLink]="problemsPath"
+                [queryParams]="chipParams('tag', chip.id)"
+                queryParamsHandling="merge"
+                [attr.aria-current]="query().tag === chip.id ? 'true' : null"
+                class="inline-flex min-h-9 items-center rounded-chip border px-3 text-sm transition-colors"
+                [class.border-ink]="query().tag === chip.id"
+                [class.bg-ink]="query().tag === chip.id"
+                [class.text-surface]="query().tag === chip.id"
+                [class.border-control]="query().tag !== chip.id"
+                [class.bg-raised]="query().tag !== chip.id"
+                [class.text-ink]="query().tag !== chip.id"
+                >#{{ chip.name }}</a
+              >
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  @let page = shownQuestions();
+  @if (questions.error()) {
+    <cc-alert tone="error">Problems couldn't be loaded. Refresh the page to try again.</cc-alert>
+  }
+  @if (page) {
+    <div
+      class="flex flex-col gap-6 transition-opacity"
+      [attr.aria-busy]="questions.isLoading()"
+      [class.opacity-60]="questions.isLoading()"
+    >
+      @if (page.data.length === 0) {
+        <div class="rounded-panel border border-dashed border-line px-6 py-12 text-center">
+          @if (hasFilters()) {
+            <p class="text-lg font-semibold text-ink">No problems match these filters</p>
+            <a ccButton variant="secondary" class="mt-4" [routerLink]="problemsPath"
+              >Clear filters</a
+            >
+          } @else if (page.page > 1) {
+            <p class="text-lg font-semibold text-ink">This page is empty</p>
+            <a ccButton variant="secondary" class="mt-4" [routerLink]="problemsPath"
+              >Back to the first page</a
+            >
+          } @else {
+            <p class="text-lg font-semibold text-ink">No problems yet</p>
+            <p class="mt-1 text-ink-muted">Problems appear here as soon as they're published.</p>
+          }
+        </div>
+      } @else {
+        <ul class="flex flex-col divide-y divide-line rounded-panel border border-line bg-raised">
+          @for (question of page.data; track question.id) {
+            <li>
+              <a
+                [routerLink]="[problemPath, question.id]"
+                class="group flex flex-col gap-2 px-5 py-4 transition-colors sm:px-6"
+                [class]="
+                  isSolved(question) ? 'bg-success/10 hover:bg-success/15' : 'hover:bg-ink/4'
+                "
+              >
+                <span class="flex items-start justify-between gap-3">
+                  <span
+                    class="text-lg font-semibold text-ink group-hover:underline group-hover:underline-offset-4"
+                    >{{ question.title }}</span
+                  >
+                  @if (isSolved(question)) {
+                    <span
+                      class="inline-flex shrink-0 items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-sm font-medium text-success"
+                    >
+                      <svg lucideCircleCheck class="size-4" aria-hidden="true"></svg>Solved
+                    </span>
+                  }
+                </span>
+                <span class="text-ink-muted">{{ question.summary }}</span>
+                @if (categoryLabels(question).length > 0 || tagLabels(question).length > 0) {
+                  <span class="flex flex-wrap gap-1.5">
+                    @for (name of categoryLabels(question); track name) {
+                      <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs text-ink">{{
+                        name
+                      }}</span>
+                    }
+                    @for (name of tagLabels(question); track name) {
+                      <span class="rounded-chip px-2 py-0.5 text-xs text-ink-muted"
+                        >#{{ name }}</span
+                      >
+                    }
+                  </span>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      }
+
+      <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+    </div>
+  } @else if (!questions.error()) {
+    <div class="flex items-center gap-3 text-ink-muted" role="status">
+      <cc-spinner class="size-5" />
+      Loading problems
+    </div>
+  }
+</div>

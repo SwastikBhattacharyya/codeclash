@@ -1,5 +1,6 @@
 import type { Routes } from '@angular/router';
 import { guestGuard } from './core/auth/auth-guards';
+import { AppLayout } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
 export const routes: Routes = [
@@ -25,6 +26,19 @@ export const routes: Routes = [
         title: 'Verify email | CodeClash',
         loadComponent: () =>
           import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+      },
+    ],
+  },
+  {
+    path: '',
+    component: AppLayout,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Problems | CodeClash',
+        loadComponent: () =>
+          import('./features/problems/problem-list/problem-list').then((m) => m.ProblemList),
       },
     ],
   },
