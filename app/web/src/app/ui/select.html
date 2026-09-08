@@ -1,0 +1,39 @@
+<div>
+  <label [for]="id" class="mb-1.5 block text-sm font-medium text-ink">{{ label() }}</label>
+  <div class="relative">
+    <select
+      #control
+      [id]="id"
+      [attr.name]="name() || null"
+      [attr.aria-invalid]="showError() || null"
+      [attr.aria-describedby]="describedBy()"
+      [disabled]="disabled()"
+      [required]="required()"
+      (change)="onChange($event)"
+      (blur)="touch.emit()"
+      class="min-h-11 w-full cursor-pointer appearance-none rounded-control border border-control bg-raised py-2 pr-10 pl-3 text-base text-ink transition-colors hover:border-ink-muted focus-visible:border-ink disabled:cursor-not-allowed disabled:opacity-60 aria-invalid:border-danger"
+    >
+      @for (option of options(); track option.value) {
+        <option
+          [value]="option.value"
+          [selected]="option.value === value()"
+          [attr.selected]="option.value === value() ? '' : null"
+        >
+          {{ option.label }}
+        </option>
+      }
+    </select>
+    <svg
+      lucideChevronDown
+      class="pointer-events-none absolute top-1/2 right-3 size-5 -translate-y-1/2 text-ink-muted"
+    ></svg>
+  </div>
+  @if (hint()) {
+    <p [id]="hintId" class="mt-1.5 text-sm text-ink-muted">{{ hint() }}</p>
+  }
+  <div [id]="errorId" aria-live="polite">
+    @if (showError()) {
+      <p class="mt-1.5 text-sm text-danger">{{ errorMessage() }}</p>
+    }
+  </div>
+</div>
