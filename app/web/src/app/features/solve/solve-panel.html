@@ -1,0 +1,55 @@
+<div class="flex flex-wrap items-end justify-between gap-3">
+  <div class="flex flex-wrap items-end gap-3">
+    <cc-select
+      class="w-36"
+      label="Language"
+      [options]="languageOptions"
+      [value]="language()"
+      (valueChange)="onLanguage($event)"
+    />
+    <p class="pb-2.5 text-sm text-ink-muted tabular-nums">{{ limitHint() }}</p>
+  </div>
+  <button ccButton variant="ghost" type="button" (click)="reset()">
+    <svg lucideRotateCcw class="size-4"></svg>
+    Reset to template
+  </button>
+</div>
+
+<cc-code-editor
+  class="h-[28rem] lg:h-[calc(100dvh-20rem)] lg:min-h-80"
+  label="Solution code"
+  [language]="language()"
+  [(value)]="code"
+  (submit)="submit()"
+/>
+
+@if (error(); as message) {
+  <cc-alert tone="error">{{ message }}</cc-alert>
+}
+@if (blockedReason(); as reason) {
+  <cc-alert>{{ reason }}</cc-alert>
+}
+
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <p class="text-sm tabular-nums" [class]="tooLong() ? 'text-danger' : 'text-ink-muted'">
+    {{ size().toLocaleString('en-US') }} / {{ maxSize.toLocaleString('en-US') }} characters
+    @if (tooLong()) {
+      · too long to submit
+    }
+  </p>
+  @if (signedIn()) {
+    <button
+      ccButton
+      type="button"
+      [disabled]="!canSubmit()"
+      [loading]="submitting() || judging()"
+      (click)="submit()"
+    >
+      <svg lucideSend class="size-4.5"></svg>
+      Submit
+      <kbd class="hidden text-xs font-normal opacity-70 sm:inline">Ctrl+Enter</kbd>
+    </button>
+  } @else {
+    <button ccButton type="button" (click)="signIn()">Sign in to submit</button>
+  }
+</div>
