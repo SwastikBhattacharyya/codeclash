@@ -1,0 +1,129 @@
+<div class="flex flex-wrap items-center justify-between gap-3">
+  <h2 class="text-lg font-semibold text-ink">Submissions</h2>
+  <label
+    class="inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm text-ink has-disabled:cursor-not-allowed has-disabled:opacity-60"
+  >
+    <input
+      type="checkbox"
+      class="size-4 cursor-pointer accent-accent disabled:cursor-not-allowed"
+      [checked]="everyone()"
+      [disabled]="!signedIn()"
+      (change)="toggleEveryone($event)"
+    />
+    Show everyone's submissions
+  </label>
+</div>
+
+@if (submissions.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Submissions couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="submissions.reload()">
+        Retry
+      </button>
+    </div>
+  </cc-alert>
+}
+
+<cc-data-table
+  caption="Submissions"
+  [columns]="columns()"
+  [emptyText]="emptyText()"
+  [loading]="submissions.isLoading() && rows().length === 0"
+>
+  <ng-template [ccTableRow]="rows()" let-submission>
+    <th
+      scope="row"
+      class="sticky left-0 z-10 px-4 py-2.5 text-left font-normal"
+      [class]="submission.id === highlightId() ? 'bg-accent/15' : 'bg-raised'"
+    >
+      <cc-verdict-badge [state]="submission.state" />
+    </th>
+    @if (everyone()) {
+      <td class="max-w-36 truncate px-4 py-2.5 text-ink" [title]="submission.username">
+        {{ submission.username }}
+      </td>
+    }
+    <td class="px-4 py-2.5 whitespace-nowrap text-ink">
+      {{ languageLabels[submission.language] }}
+    </td>
+    <td class="px-4 py-2.5 whitespace-nowrap text-ink-muted tabular-nums">
+      {{ formatTime(submission.timeTakenMs) }}
+    </td>
+    <td class="px-4 py-2.5 whitespace-nowrap text-ink-muted tabular-nums">
+      {{ formatMemory(submission.memoryUsedKb) }}
+    </td>
+    <td class="px-4 py-2.5 whitespace-nowrap text-ink-muted tabular-nums">
+      <time
+        [attr.datetime]="submission.createdAt"
+        [title]="submission.createdAt | date: 'medium'"
+        >{{ submission.createdAt | date: 'd MMM, HH:mm' }}</time
+      >
+    </td>
+    <td class="bg-raised px-2 py-1 sm:sticky sm:right-0 sm:z-10">
+      <div class="flex justify-end">
+        <button
+          type="button"
+          class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+          [attr.aria-label]="
+            'View code of submission from ' + (submission.createdAt | date: 'medium')
+          "
+          title="View code"
+          (click)="open(submission)"
+        >
+          <svg lucideCode class="size-4.5"></svg>
+        </button>
+      </div>
+    </td>
+  </ng-template>
+</cc-data-table>
+
+@if (shown().page; as current) {
+  @if (current.page > firstPage || current.hasNext) {
+    <nav aria-label="Submission pages" class="flex items-center justify-between gap-4">
+      <button
+        ccButton
+        variant="secondary"
+        type="button"
+        [disabled]="current.page <= firstPage || submissions.isLoading()"
+        (click)="goToPage(current.page - 1)"
+      >
+        Previous
+      </button>
+      <p class="text-sm text-ink-muted tabular-nums" aria-live="polite">Page {{ current.page }}</p>
+      <button
+        ccButton
+        variant="secondary"
+        type="button"
+        [disabled]="!current.hasNext || submissions.isLoading()"
+        (click)="goToPage(current.page + 1)"
+      >
+        Next
+      </button>
+    </nav>
+  }
+}
+
+@if (viewed(); as submission) {
+  <cc-dialog
+    [title]="languageLabels[submission.language] + ' submission'"
+    [wide]="true"
+    (closed)="viewed.set(null)"
+  >
+    <div class="flex flex-wrap items-center gap-3 text-sm text-ink-muted">
+      <cc-verdict-badge [state]="submission.state" />
+      <span>{{ submission.username }}</span>
+      <time [attr.datetime]="submission.createdAt">{{
+        submission.createdAt | date: 'd MMM y, HH:mm'
+      }}</time>
+    </div>
+    <cc-code-view [code]="submission.code" [language]="viewedLanguage()" label="Code" />
+    @if (submission.compileOutput !== null) {
+      <cc-compile-output [output]="submission.compileOutput" />
+    }
+    <div class="flex flex-wrap justify-end gap-3">
+      <button ccButton variant="ghost" type="button" (click)="viewed.set(null)">Close</button>
+      <button ccButton type="button" (click)="useCode(submission)">Load into editor</button>
+    </div>
+  </cc-dialog>
+}

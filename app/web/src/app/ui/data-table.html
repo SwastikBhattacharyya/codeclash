@@ -1,0 +1,79 @@
+<div
+  class="overflow-x-auto rounded-panel border border-line bg-raised"
+  tabindex="0"
+  role="region"
+  [attr.aria-label]="caption()"
+>
+  <table class="w-full min-w-xl border-collapse text-left text-sm">
+    <caption class="sr-only">
+      {{
+        caption()
+      }}
+    </caption>
+    <thead>
+      <tr class="border-b border-line text-ink-muted">
+        @for (column of headers(); track column.label) {
+          <th
+            scope="col"
+            class="px-4 py-3 font-medium whitespace-nowrap sm:px-5"
+            [attr.aria-sort]="ariaSort(column)"
+            [class]="headerClass(column)"
+          >
+            @if (column.sortField; as field) {
+              <button
+                type="button"
+                class="-mx-1 inline-flex cursor-pointer items-center gap-1.5 rounded-chip px-1 font-medium transition-colors hover:text-ink"
+                (click)="toggleSort(field)"
+              >
+                {{ column.label }}
+                @switch (ariaSort(column)) {
+                  @case ('ascending') {
+                    <svg lucideArrowUp class="size-4 text-ink"></svg>
+                  }
+                  @case ('descending') {
+                    <svg lucideArrowDown class="size-4 text-ink"></svg>
+                  }
+                  @default {
+                    <svg lucideArrowUpDown class="size-4"></svg>
+                  }
+                }
+              </button>
+            } @else {
+              {{ column.label }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody
+      class="transition-opacity"
+      [attr.aria-busy]="loading() || null"
+      [class.opacity-60]="loading() && rows().length > 0"
+    >
+      @let rowTemplate = template();
+      @if (rows().length > 0 && rowTemplate) {
+        @for (item of rows(); track item.id) {
+          <tr class="border-b border-line last:border-b-0">
+            <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: item }" />
+          </tr>
+        }
+      } @else {
+        <tr>
+          <td [attr.colspan]="headers().length" class="px-4 py-12 sm:px-5">
+            <span
+              role="status"
+              class="sticky left-4 inline-flex max-w-[calc(100vw-4rem)] items-center gap-3 text-ink-muted sm:left-5"
+            >
+              @if (loading()) {
+                <cc-spinner class="size-5" />
+                Loading
+              } @else {
+                {{ emptyText() }}
+              }
+            </span>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

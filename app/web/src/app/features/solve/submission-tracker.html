@@ -1,0 +1,165 @@
+<section
+  class="relative flex flex-col gap-4 overflow-hidden rounded-panel border bg-raised p-4 sm:p-5"
+  [class]="
+    tone() === 'success'
+      ? 'border-success/50'
+      : tone() === 'danger'
+        ? 'border-danger/50'
+        : 'border-line'
+  "
+  [attr.aria-labelledby]="headingId"
+>
+  <div class="flex flex-wrap items-center justify-between gap-2">
+    <h2 [id]="headingId" class="text-base font-semibold text-ink">Latest submission</h2>
+    <span class="text-sm text-ink-muted">{{ languageLabel() }}</span>
+  </div>
+
+  <ol class="grid grid-cols-4 gap-2" aria-label="Judging progress">
+    @for (step of steps(); track step.label; let last = $last) {
+      <li
+        class="flex flex-col items-center gap-1.5 text-center"
+        [attr.aria-current]="step.status === 'active' ? 'step' : null"
+      >
+        <span
+          class="relative flex size-8 items-center justify-center rounded-full border-2"
+          [class]="
+            step.status === 'done'
+              ? 'border-success bg-success text-raised'
+              : step.status === 'failed'
+                ? 'border-danger bg-danger text-raised'
+                : step.status === 'active'
+                  ? 'border-ink text-ink'
+                  : 'border-line text-ink-muted'
+          "
+        >
+          @switch (step.status) {
+            @case ('done') {
+              <svg lucideCheck class="size-4" [strokeWidth]="3"></svg>
+            }
+            @case ('failed') {
+              <svg lucideX class="size-4" [strokeWidth]="3"></svg>
+            }
+            @case ('active') {
+              <cc-spinner class="size-4" />
+            }
+            @default {
+              <span class="size-1.5 rounded-full bg-current"></span>
+            }
+          }
+        </span>
+        <span
+          class="text-xs"
+          [class]="
+            step.status === 'waiting' || step.status === 'skipped'
+              ? 'text-ink-muted'
+              : 'font-medium text-ink'
+          "
+          >{{ step.label }}</span
+        >
+        <span class="sr-only">{{ step.status }}</span>
+      </li>
+    }
+  </ol>
+
+  <div aria-live="polite" class="flex flex-col gap-3">
+    @if (pending() && pollLost()) {
+      <p class="text-sm text-ink-muted">
+        This submission can't be checked anymore. It may have been deleted.
+      </p>
+    } @else if (pending()) {
+      <p class="text-sm text-ink-muted">
+        @if (state() === 'queued') {
+          Waiting for a judge…
+        } @else {
+          Compiled. Running the tests…
+        }
+      </p>
+      @if (stalled()) {
+        <p class="text-sm text-ink-muted">
+          Still waiting on the judge. This page keeps checking for a result.
+        </p>
+      }
+    } @else {
+      <div class="relative flex flex-wrap items-baseline justify-between gap-3">
+        <p
+          class="text-2xl font-semibold"
+          [class]="
+            tone() === 'success' ? 'text-success' : tone() === 'danger' ? 'text-danger' : 'text-ink'
+          "
+        >
+          {{ label() }}
+        </p>
+        @if (state() === 'correct') {
+          <dl class="flex gap-5 text-sm">
+            <div>
+              <dt class="text-ink-muted">Time</dt>
+              <dd class="font-semibold text-ink tabular-nums">{{ time() }}</dd>
+            </div>
+            <div>
+              <dt class="text-ink-muted">Memory</dt>
+              <dd class="font-semibold text-ink tabular-nums">{{ memory() }}</dd>
+            </div>
+          </dl>
+        }
+        @if (celebrate()) {
+          <span class="cc-burst" aria-hidden="true">
+            @for (piece of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; track piece) {
+              <span [style.--piece]="piece"></span>
+            }
+          </span>
+        }
+      </div>
+
+      @switch (state()) {
+        @case ('compilation_error') {
+          <p class="text-sm text-ink-muted">Your code didn't compile. Check it and submit again.</p>
+        }
+        @case ('runner_error') {
+          <p class="text-sm text-ink-muted">
+            The judge couldn't finish this submission. Try submitting again.
+          </p>
+        }
+      }
+
+      @let failed = failedTest();
+      @switch (failed.kind) {
+        @case ('loading') {
+          <p class="text-sm text-ink-muted">Loading the failing test…</p>
+        }
+        @case ('hidden') {
+          <p class="text-sm text-ink-muted">Failed on a hidden test case.</p>
+        }
+        @case ('removed') {
+          <p class="text-sm text-ink-muted">The failing test case is no longer available.</p>
+        }
+        @case ('unknown') {
+          <p class="text-sm text-ink-muted">The failing test case couldn't be loaded.</p>
+        }
+        @case ('public') {
+          <p class="sr-only">Failed on a sample test.</p>
+        }
+      }
+    }
+  </div>
+
+  @if (state() === 'compilation_error') {
+    <cc-compile-output [output]="current().compileOutput ?? ''" />
+  }
+
+  @let sample = failedTest();
+  @if (sample.kind === 'public') {
+    <details class="rounded-control border border-line" open>
+      <summary class="cursor-pointer px-3 py-2 text-sm font-medium text-ink">
+        Failed on a sample test
+      </summary>
+      <div class="border-t border-line p-3">
+        <cc-test-result-panel
+          [input]="sample.testCase.input"
+          [expected]="sample.testCase.output"
+          [actual]="current().actualOutput"
+          [state]="state()"
+        />
+      </div>
+    </details>
+  }
+</section>

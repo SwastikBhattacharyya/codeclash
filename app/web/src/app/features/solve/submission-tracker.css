@@ -1,0 +1,42 @@
+.cc-burst {
+  pointer-events: none;
+  position: absolute;
+  top: 50%;
+  left: 3rem;
+}
+
+.cc-burst > span {
+  position: absolute;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 9999px;
+  background: var(--cc-accent);
+  opacity: 0;
+  animation: cc-burst 900ms ease-out forwards;
+  --angle: calc(var(--piece) * 30deg);
+}
+
+.cc-burst > span:nth-child(3n) {
+  background: var(--cc-success);
+}
+
+.cc-burst > span:nth-child(3n + 1) {
+  background: var(--cc-code-title);
+}
+
+@keyframes cc-burst {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(4.5rem) scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-burst {
+    display: none;
+  }
+}
