@@ -1,0 +1,86 @@
+@if (activeContest(); as contest) {
+  <cc-contest-bar
+    class="mb-4 shrink-0"
+    [contest]="contest"
+    [questionId]="questionId() ?? ''"
+    [refresh]="historyRefresh()"
+    (registered)="onRegistered(contest)"
+  />
+} @else {
+  <a
+    [routerLink]="problemsPath"
+    class="mb-4 w-fit rounded-chip text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline"
+    >All problems</a
+  >
+}
+
+@if (notFound()) {
+  <div class="rounded-panel border border-dashed border-line px-6 py-12 text-center">
+    <h1 class="text-3xl text-ink">Problem not found</h1>
+    <p class="mt-2 text-ink-muted">It may have been removed, or it isn't public yet.</p>
+    <a ccButton variant="secondary" class="mt-6" [routerLink]="problemsPath">Browse problems</a>
+  </div>
+} @else if (question.error()) {
+  <cc-alert tone="error">This problem couldn't be loaded. Refresh the page to try again.</cc-alert>
+} @else if (question.hasValue()) {
+  @let problem = question.value();
+  <cc-split-pane class="min-h-0 flex-1" [storageKey]="splitStorageKey">
+    <article ccPaneStart class="flex flex-col gap-5 pb-8">
+      <header class="flex flex-col gap-3">
+        <h1 class="text-3xl text-ink sm:text-4xl">{{ problem.title }}</h1>
+        <p class="text-lg text-ink-muted">{{ problem.summary }}</p>
+        <dl class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+          <div class="flex items-baseline gap-1.5">
+            <dt class="text-ink-muted">Time limit</dt>
+            <dd class="font-semibold text-ink tabular-nums">
+              {{ seconds(problem.maxRunTimeMs) }} s
+            </dd>
+          </div>
+          <div class="flex items-baseline gap-1.5">
+            <dt class="text-ink-muted">Memory limit</dt>
+            <dd class="font-semibold text-ink tabular-nums">{{ problem.maxRamLimitMb }} MB</dd>
+          </div>
+        </dl>
+        @if (categoryNames().length > 0 || tagNames().length > 0) {
+          <ul class="flex flex-wrap gap-1.5" aria-label="Categories and tags">
+            @for (name of categoryNames(); track name) {
+              <li class="rounded-chip bg-ink/6 px-2 py-0.5 text-sm text-ink">{{ name }}</li>
+            }
+            @for (name of tagNames(); track name) {
+              <li class="rounded-chip px-2 py-0.5 text-sm text-ink-muted">#{{ name }}</li>
+            }
+          </ul>
+        }
+      </header>
+      <cc-markdown [source]="problem.description" />
+    </article>
+
+    <div ccPaneEnd class="flex flex-col gap-6 pb-8">
+      <cc-solve-panel
+        #panel
+        [questionId]="problem.id"
+        [timeLimitMs]="problem.maxRunTimeMs"
+        [judging]="judging()"
+        (submitted)="onSubmitted($event)"
+      />
+      @if (tracked(); as submission) {
+        <cc-submission-tracker
+          [submission]="submission"
+          (finished)="onFinished($event)"
+          (lost)="onLost()"
+        />
+      }
+      <cc-submission-history
+        [questionId]="problem.id"
+        [refresh]="historyRefresh()"
+        [highlightId]="tracked()?.id ?? null"
+        (loadCode)="onLoadCode(panel, $event)"
+      />
+    </div>
+  </cc-split-pane>
+} @else {
+  <div class="flex items-center gap-3 text-ink-muted" role="status">
+    <cc-spinner class="size-5" />
+    Loading the problem
+  </div>
+}

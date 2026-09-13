@@ -1,6 +1,6 @@
 import type { Routes } from '@angular/router';
 import { guestGuard } from './core/auth/auth-guards';
-import { AppLayout } from './layouts/app-layout';
+import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
 export const routes: Routes = [
@@ -39,6 +39,13 @@ export const routes: Routes = [
         title: 'Problems | CodeClash',
         loadComponent: () =>
           import('./features/problems/problem-list/problem-list').then((m) => m.ProblemList),
+      },
+      {
+        path: 'problems/:id',
+        title: 'Problem | CodeClash',
+        data: { [FULL_WIDTH_DATA_KEY]: true },
+        loadComponent: () =>
+          import('./features/problems/problem-detail/problem-detail').then((m) => m.ProblemDetail),
       },
     ],
   },
