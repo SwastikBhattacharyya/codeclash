@@ -1,0 +1,99 @@
+server:
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: contest-service
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}
+      properties:
+        allow.auto.create.topics: false
+    producer:
+      compression-type: zstd
+      properties:
+        max.request.size: 16777216
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+  mvc:
+    apiversion:
+      use:
+        path-segment: 1
+      supported: 1
+      detect-supported: false
+  threads:
+    virtual:
+      enabled: true
+
+logging:
+  level:
+    org.apache.kafka: warn
+    org.springframework.kafka.listener.KafkaMessageListenerContainer: warn
+
+jdbc:
+  includes: query
+
+management:
+  observations:
+    annotations:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+
+springdoc:
+  default-produces-media-type: application/json
+
+codeclash:
+  openapi:
+    title: Contest Service
+    description: Contests, registrations, leaderboards and submissions
+  auth:
+    connect-timeout: 1s
+    read-timeout: 2s
+  contest:
+    cdc-topic:
+      name: contest.contest.cdc
+      partitions: 3
+    opener:
+      lead: 30s
+      interval: 5s
+      batch-size: 100
+  submission:
+    cdc-consumer:
+      topic: problem.submission.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+  user:
+    cdc-consumer:
+      topic: auth.user.cdc
+      concurrency: 3
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+  question:
+    cdc-consumer:
+      topic: problem.question.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+
+namastack:
+  outbox:
+    jdbc:
+      table-names:
+        record: outbox_records
+        instance: outbox_instances
+        partition: outbox_partitions
+      schema-initialization:
+        enabled: false

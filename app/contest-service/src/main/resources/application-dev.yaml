@@ -1,0 +1,36 @@
+server:
+  port: ${CONTEST_PORT:8003}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${DB_PORT:5432}/contest
+    username: ${DB_USER:codeclash}
+    password: ${DB_PASSWORD:codeclash}
+  kafka:
+    bootstrap-servers: localhost:${REDPANDA_PORT:9092}
+
+codeclash:
+  auth:
+    base-url: http://localhost:${AUTH_PORT:8001}
+
+logging:
+  level:
+    com.codeclash: debug
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:${OTLP_HTTP_PORT:8932}/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          endpoint: http://localhost:${OTLP_HTTP_PORT:8932}/v1/traces
+    logging:
+      export:
+        otlp:
+          endpoint: http://localhost:${OTLP_HTTP_PORT:8932}/v1/logs
