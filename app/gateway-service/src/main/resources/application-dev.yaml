@@ -7,6 +7,7 @@ codeclash:
   services:
     auth: http://localhost:${AUTH_PORT:8001}
     problem: http://localhost:${PROBLEM_PORT:8002}
+    contest: http://localhost:${CONTEST_PORT:8003}
 
 logging:
   level:

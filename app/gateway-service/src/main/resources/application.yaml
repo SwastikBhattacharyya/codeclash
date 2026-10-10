@@ -24,6 +24,10 @@ spring:
               uri: ${codeclash.services.problem}
               predicates:
                 - Path=/api/*/questions/**,/api/*/categories/**,/api/*/tags/**,/api/*/submissions/**
+            - id: contest
+              uri: ${codeclash.services.contest}
+              predicates:
+                - Path=/api/*/contests/**
             - id: auth-docs
               uri: ${codeclash.services.auth}
               predicates:
@@ -34,6 +38,12 @@ spring:
               uri: ${codeclash.services.problem}
               predicates:
                 - Path=/v3/api-docs/problem
+              filters:
+                - SetPath=/v3/api-docs
+            - id: contest-docs
+              uri: ${codeclash.services.contest}
+              predicates:
+                - Path=/v3/api-docs/contest
               filters:
                 - SetPath=/v3/api-docs
 
@@ -55,6 +65,8 @@ springdoc:
         url: /v3/api-docs/auth
       - name: Problem
         url: /v3/api-docs/problem
+      - name: Contest
+        url: /v3/api-docs/contest
 
 codeclash:
   auth:
