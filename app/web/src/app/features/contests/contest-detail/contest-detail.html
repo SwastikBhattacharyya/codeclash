@@ -1,0 +1,336 @@
+<div class="flex flex-col gap-6">
+  <a
+    [routerLink]="contestsPath"
+    class="w-fit rounded-chip text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline"
+    >All contests</a
+  >
+
+  @if (notFound()) {
+    <div class="rounded-panel border border-dashed border-line px-6 py-12 text-center">
+      <h1 class="text-3xl text-ink">Contest not found</h1>
+      <p class="mt-2 text-ink-muted">
+        It may have been removed. Check the contest list for what's on.
+      </p>
+      <a ccButton variant="secondary" class="mt-6" [routerLink]="contestsPath">Browse contests</a>
+    </div>
+  } @else if (contest.error() && !shownContest()) {
+    <cc-alert tone="error"
+      >This contest couldn't be loaded. Refresh the page to try again.</cc-alert
+    >
+  } @else if (shownContest(); as current) {
+    <div class="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
+      <div class="flex min-w-0 flex-1 flex-col gap-10">
+        <header class="flex flex-col gap-3">
+          @switch (phase()) {
+            @case ('live') {
+              <span
+                class="w-fit rounded-chip bg-accent px-2 py-0.5 text-sm font-bold text-on-accent"
+                >Live</span
+              >
+            }
+            @case ('upcoming') {
+              <span class="w-fit rounded-chip bg-ink/6 px-2 py-0.5 text-sm font-medium text-ink"
+                >Upcoming</span
+              >
+            }
+            @default {
+              <span
+                class="w-fit rounded-chip bg-ink/6 px-2 py-0.5 text-sm font-medium text-ink-muted"
+                >Ended</span
+              >
+            }
+          }
+          <h1 class="text-4xl text-ink sm:text-5xl">{{ current.name }}</h1>
+        </header>
+
+        <cc-markdown class="max-w-3xl" [source]="current.description" />
+
+        <section aria-labelledby="problems-heading" class="flex flex-col gap-4">
+          <h2 id="problems-heading" class="text-2xl text-ink">Problems</h2>
+          @if (current.questions === null) {
+            <p class="text-ink-muted">Problems are revealed when the contest starts.</p>
+          } @else if (problems().length === 0) {
+            <p class="text-ink-muted">This contest has no problems.</p>
+          } @else {
+            <ol
+              class="flex flex-col divide-y divide-line rounded-panel border border-line bg-raised"
+            >
+              @for (problem of problems(); track problem.id; let index = $index) {
+                <li>
+                  <a
+                    [routerLink]="[problemPath, problem.id]"
+                    [queryParams]="problemParams()"
+                    class="group flex items-center gap-4 px-5 py-4 transition-colors sm:px-6"
+                    [class]="
+                      problem.solved ? 'bg-success/10 hover:bg-success/15' : 'hover:bg-ink/4'
+                    "
+                  >
+                    <span
+                      class="inline-flex size-8 shrink-0 items-center justify-center rounded-chip bg-ink/6 text-sm font-bold text-ink tabular-nums"
+                      >{{ index + 1 }}</span
+                    >
+                    <span
+                      class="min-w-0 flex-1 truncate font-semibold text-ink group-hover:underline group-hover:underline-offset-4"
+                      >{{ problem.title }}</span
+                    >
+                    @if (problem.solved) {
+                      <span
+                        class="inline-flex shrink-0 items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-sm font-medium text-success"
+                      >
+                        <svg lucideCircleCheck class="size-4" aria-hidden="true"></svg>Solved
+                      </span>
+                    }
+                    <span class="shrink-0 text-sm text-ink-muted tabular-nums"
+                      >{{ problem.points }} pts</span
+                    >
+                  </a>
+                </li>
+              }
+            </ol>
+          }
+        </section>
+
+        <section
+          aria-labelledby="leaderboard-heading"
+          class="flex flex-col gap-4 transition-opacity"
+          [attr.aria-busy]="leaderboard.isLoading()"
+        >
+          <div class="flex items-baseline justify-between gap-4">
+            <h2 id="leaderboard-heading" class="text-2xl text-ink">Leaderboard</h2>
+            @if (phase() === 'live') {
+              <p class="text-sm text-ink-muted">Updates every 30 seconds</p>
+            }
+          </div>
+          @if (leaderboard.error() && !shownLeaderboard()) {
+            <cc-alert tone="error">The leaderboard couldn't be loaded.</cc-alert>
+          } @else if (shownLeaderboard(); as board) {
+            @if (board.data.length === 0) {
+              @if (board.page > 1) {
+                <p class="text-ink-muted">This page of the leaderboard is empty.</p>
+                <a ccButton variant="secondary" class="w-fit" [routerLink]="[]">Back to the top</a>
+              } @else {
+                <p class="text-ink-muted">
+                  @if (phase() === 'upcoming') {
+                    The leaderboard fills once the contest starts.
+                  } @else {
+                    No one has scored yet.
+                  }
+                </p>
+              }
+            } @else {
+              <div class="overflow-x-auto rounded-panel border border-line bg-raised">
+                <table class="w-full min-w-md border-collapse text-left tabular-nums">
+                  <caption class="sr-only">
+                    Leaderboard, page
+                    {{
+                      board.page
+                    }}
+                  </caption>
+                  <thead>
+                    <tr class="border-b border-line text-sm text-ink-muted">
+                      <th scope="col" class="w-16 px-5 py-3 font-medium">Rank</th>
+                      <th scope="col" class="px-2 py-3 font-medium">User</th>
+                      <th scope="col" class="px-2 py-3 text-right font-medium">Points</th>
+                      <th scope="col" class="px-2 py-3 text-right font-medium">Solved</th>
+                      <th scope="col" class="px-5 py-3 text-right font-medium">Last solve</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (entry of board.data; track entry.username) {
+                      <tr class="border-b border-line last:border-b-0">
+                        <td class="px-5 py-3">
+                          <span
+                            class="inline-flex size-7 items-center justify-center rounded-chip text-sm font-bold"
+                            [class.bg-accent]="entry.rank === 1"
+                            [class.text-on-accent]="entry.rank === 1"
+                            [class.text-ink]="entry.rank !== 1"
+                            >{{ entry.rank }}</span
+                          >
+                        </td>
+                        <th scope="row" class="px-2 py-3 font-medium text-ink">
+                          {{ entry.username }}
+                        </th>
+                        <td class="px-2 py-3 text-right text-ink">{{ entry.points }}</td>
+                        <td class="px-2 py-3 text-right text-ink">{{ entry.solved }}</td>
+                        <td class="px-5 py-3 text-right text-sm text-ink-muted">
+                          {{
+                            entry.lastSolveAt
+                              ? (entry.lastSolveAt | localTime: 'MMM d, HH:mm')
+                              : 'None'
+                          }}
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+              @if (board.page > 1 || board.hasNext) {
+                <nav
+                  aria-label="Leaderboard pagination"
+                  class="flex items-center justify-between gap-4"
+                >
+                  @if (board.page > 1) {
+                    <a
+                      ccButton
+                      variant="secondary"
+                      [routerLink]="[]"
+                      [queryParams]="leaderboardParams(board.page - 1)"
+                      >Previous</a
+                    >
+                  } @else {
+                    <span></span>
+                  }
+                  <p class="text-sm text-ink-muted tabular-nums">Page {{ board.page }}</p>
+                  @if (board.hasNext) {
+                    <a
+                      ccButton
+                      variant="secondary"
+                      [routerLink]="[]"
+                      [queryParams]="leaderboardParams(board.page + 1)"
+                      >Next</a
+                    >
+                  } @else {
+                    <span></span>
+                  }
+                </nav>
+              }
+            }
+          } @else {
+            <div class="flex items-center gap-3 text-ink-muted" role="status">
+              <cc-spinner class="size-5" />
+              Loading the leaderboard
+            </div>
+          }
+        </section>
+      </div>
+
+      <aside
+        aria-label="Contest schedule"
+        class="w-full shrink-0 rounded-panel border border-line bg-raised p-6 lg:sticky lg:top-6 lg:w-80"
+      >
+        @switch (phase()) {
+          @case ('upcoming') {
+            <p class="text-sm text-ink-muted">Starts in</p>
+            <cc-countdown
+              class="mt-1 block text-4xl font-extrabold text-ink font-stretch-condensed"
+              [until]="current.liveAt"
+              label="Starts in"
+            />
+          }
+          @case ('live') {
+            <p class="text-sm text-ink-muted">Ends in</p>
+            <cc-countdown
+              class="mt-1 block text-4xl font-extrabold text-ink font-stretch-condensed"
+              [until]="current.endAt"
+              label="Ends in"
+            />
+          }
+          @default {
+            <p class="text-lg font-semibold text-ink">This contest has ended</p>
+          }
+        }
+
+        <dl class="mt-6 grid gap-3 border-t border-line pt-6 text-sm">
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-muted">Starts</dt>
+            <dd class="text-right text-ink tabular-nums">
+              {{ current.liveAt | localTime: 'MMM d, y, h:mm a' }}
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-muted">Ends</dt>
+            <dd class="text-right text-ink tabular-nums">
+              {{ current.endAt | localTime: 'MMM d, y, h:mm a' }}
+            </dd>
+          </div>
+          <div class="flex justify-between gap-4">
+            <dt class="text-ink-muted">Length</dt>
+            <dd class="text-right text-ink">{{ duration(current) }}</dd>
+          </div>
+        </dl>
+
+        @if (phase() !== 'ended') {
+          <div class="mt-6 border-t border-line pt-6">
+            @if (!auth.isAuthenticated()) {
+              <a ccButton class="w-full" [routerLink]="signInPath" [queryParams]="signInParams()"
+                >Sign in to register</a
+              >
+            } @else if (current.registered) {
+              <p
+                #registrationStatus
+                tabindex="-1"
+                class="flex items-center gap-2 rounded-chip font-semibold text-success"
+              >
+                You're registered
+              </p>
+              @if (phase() === 'upcoming') {
+                @if (confirmingUnregister()) {
+                  <div
+                    class="mt-4 flex flex-col gap-3"
+                    role="group"
+                    aria-label="Confirm cancelling your registration"
+                  >
+                    <p class="text-sm text-ink">Cancel your registration for this contest?</p>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        ccButton
+                        variant="danger"
+                        type="button"
+                        [loading]="busy()"
+                        (click)="unregister()"
+                      >
+                        Cancel registration
+                      </button>
+                      <button
+                        ccButton
+                        variant="ghost"
+                        type="button"
+                        #keepButton
+                        [disabled]="busy()"
+                        (click)="keepRegistration()"
+                      >
+                        Keep it
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <button
+                    ccButton
+                    variant="ghost"
+                    type="button"
+                    class="mt-3 -ml-5"
+                    #cancelTrigger
+                    (click)="startUnregister()"
+                  >
+                    Cancel registration
+                  </button>
+                }
+              }
+            } @else {
+              <button
+                #registerButton
+                ccButton
+                type="button"
+                class="w-full"
+                [loading]="busy()"
+                (click)="register()"
+              >
+                Register
+              </button>
+              @if (phase() === 'live') {
+                <p class="mt-2 text-sm text-ink-muted">
+                  Late registration only counts solves made after you register.
+                </p>
+              }
+            }
+          </div>
+        }
+      </aside>
+    </div>
+  } @else {
+    <div class="flex items-center gap-3 text-ink-muted" role="status">
+      <cc-spinner class="size-5" />
+      Loading the contest
+    </div>
+  }
+</div>

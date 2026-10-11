@@ -1,0 +1,173 @@
+<div class="flex flex-col gap-10">
+  <div class="flex flex-col gap-2">
+    <h1 class="text-4xl text-ink sm:text-5xl">Contests</h1>
+    <p class="max-w-2xl text-ink-muted">
+      Timed rounds with a live leaderboard. Register before the clock runs out.
+    </p>
+  </div>
+
+  @if (failed()) {
+    <cc-alert tone="error">Contests couldn't be loaded. Refresh the page to try again.</cc-alert>
+  } @else if (!loaded()) {
+    <div class="flex items-center gap-3 text-ink-muted" role="status">
+      <cc-spinner class="size-5" />
+      Loading contests
+    </div>
+  } @else if (empty()) {
+    <div class="rounded-panel border border-dashed border-line px-6 py-12 text-center">
+      <p class="text-lg font-semibold text-ink">No contests yet</p>
+      <p class="mt-1 text-ink-muted">
+        Scheduled contests show up here with a countdown to the start.
+      </p>
+    </div>
+  } @else {
+    @if (pastPage() === 1) {
+      @let liveContests = liveShown()?.data ?? [];
+      @if (liveContests.length > 0) {
+        <section aria-labelledby="live-heading" class="flex flex-col gap-4">
+          <h2 id="live-heading" class="text-2xl text-ink">Live now</h2>
+          <ul class="flex flex-col gap-3">
+            @for (contest of liveContests; track contest.id) {
+              <li>
+                <a
+                  [routerLink]="[contestsPath, contest.id]"
+                  class="group flex flex-col gap-3 rounded-panel border-2 border-accent bg-raised px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                >
+                  <span class="flex min-w-0 flex-col gap-1">
+                    <span class="flex items-center gap-2">
+                      <span
+                        class="rounded-chip bg-accent px-2 py-0.5 text-xs font-bold text-on-accent"
+                        >Live</span
+                      >
+                      <span
+                        class="truncate text-lg font-semibold text-ink group-hover:underline group-hover:underline-offset-4"
+                        >{{ contest.name }}</span
+                      >
+                    </span>
+                    <span class="text-ink-muted">{{ excerpt(contest) }}</span>
+                  </span>
+                  <span class="flex shrink-0 flex-col text-sm sm:items-end">
+                    <span class="text-ink-muted">Ends in</span>
+                    <cc-countdown
+                      class="text-xl font-semibold text-ink"
+                      [until]="contest.endAt"
+                      label="Ends in"
+                    />
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        </section>
+      }
+
+      <section aria-labelledby="upcoming-heading" class="flex flex-col gap-4">
+        <h2 id="upcoming-heading" class="text-2xl text-ink">Upcoming</h2>
+        @let upcomingContests = upcomingShown()?.data ?? [];
+        @if (upcomingContests.length === 0) {
+          <p class="text-ink-muted">Nothing scheduled right now.</p>
+        } @else {
+          <ul class="flex flex-col divide-y divide-line rounded-panel border border-line bg-raised">
+            @for (contest of upcomingContests; track contest.id) {
+              <li>
+                <a
+                  [routerLink]="[contestsPath, contest.id]"
+                  class="group flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-ink/4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+                >
+                  <span class="flex min-w-0 flex-col gap-1">
+                    <span
+                      class="truncate text-lg font-semibold text-ink group-hover:underline group-hover:underline-offset-4"
+                      >{{ contest.name }}</span
+                    >
+                    <span class="text-ink-muted">{{ excerpt(contest) }}</span>
+                  </span>
+                  <span class="flex shrink-0 flex-col text-sm sm:items-end">
+                    <span class="text-ink tabular-nums">{{
+                      contest.liveAt | localTime: 'MMM d, h:mm a'
+                    }}</span>
+                    <span class="text-ink-muted">{{ duration(contest) }}</span>
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    }
+
+    <section
+      aria-labelledby="past-heading"
+      class="flex flex-col gap-4 transition-opacity"
+      [attr.aria-busy]="past.isLoading()"
+      [class.opacity-60]="past.isLoading()"
+    >
+      <h2 id="past-heading" class="text-2xl text-ink">Past</h2>
+      @let pastResult = pastShown();
+      @if (!pastResult || pastResult.data.length === 0) {
+        @if (pastPage() > 1) {
+          <p class="text-ink-muted">This page is empty.</p>
+          <a ccButton variant="secondary" class="w-fit" [routerLink]="contestsPath"
+            >Back to the first page</a
+          >
+        } @else {
+          <p class="text-ink-muted">No finished contests yet.</p>
+        }
+      } @else {
+        <ul class="flex flex-col divide-y divide-line rounded-panel border border-line bg-raised">
+          @for (contest of pastResult.data; track contest.id) {
+            <li>
+              <a
+                [routerLink]="[contestsPath, contest.id]"
+                class="group flex flex-col gap-3 px-5 py-4 transition-colors hover:bg-ink/4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+              >
+                <span class="flex min-w-0 flex-col gap-1">
+                  <span
+                    class="truncate text-lg font-semibold text-ink group-hover:underline group-hover:underline-offset-4"
+                    >{{ contest.name }}</span
+                  >
+                  <span class="text-ink-muted">{{ excerpt(contest) }}</span>
+                </span>
+                <span class="flex shrink-0 flex-col text-sm sm:items-end">
+                  <span class="text-ink tabular-nums"
+                    >Ended {{ contest.endAt | localTime: 'MMM d, y' }}</span
+                  >
+                  <span class="text-ink-muted">{{ duration(contest) }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ul>
+        @if (pastResult.page > 1 || pastResult.hasNext) {
+          <nav
+            aria-label="Past contests pagination"
+            class="flex items-center justify-between gap-4"
+          >
+            @if (pastResult.page > 1) {
+              <a
+                ccButton
+                variant="secondary"
+                [routerLink]="contestsPath"
+                [queryParams]="pageParams(pastResult.page - 1)"
+                >Newer</a
+              >
+            } @else {
+              <span></span>
+            }
+            <p class="text-sm text-ink-muted tabular-nums">Page {{ pastResult.page }}</p>
+            @if (pastResult.hasNext) {
+              <a
+                ccButton
+                variant="secondary"
+                [routerLink]="contestsPath"
+                [queryParams]="pageParams(pastResult.page + 1)"
+                >Older</a
+              >
+            } @else {
+              <span></span>
+            }
+          </nav>
+        }
+      }
+    </section>
+  }
+</div>

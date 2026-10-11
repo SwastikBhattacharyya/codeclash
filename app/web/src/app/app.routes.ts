@@ -47,6 +47,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/problems/problem-detail/problem-detail').then((m) => m.ProblemDetail),
       },
+      {
+        path: 'contests',
+        title: 'Contests | CodeClash',
+        loadComponent: () =>
+          import('./features/contests/contest-list/contest-list').then((m) => m.ContestList),
+      },
+      {
+        path: 'contests/:id',
+        title: 'Contest | CodeClash',
+        loadComponent: () =>
+          import('./features/contests/contest-detail/contest-detail').then((m) => m.ContestDetail),
+      },
     ],
   },
   {
