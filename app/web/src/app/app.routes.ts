@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { guestGuard } from './core/auth/auth-guards';
+import { authGuard, guestGuard } from './core/auth/auth-guards';
 import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
@@ -58,6 +58,27 @@ export const routes: Routes = [
         title: 'Contest | CodeClash',
         loadComponent: () =>
           import('./features/contests/contest-detail/contest-detail').then((m) => m.ContestDetail),
+      },
+      {
+        path: 'account',
+        canActivateChild: [authGuard],
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'profile' },
+          {
+            path: 'profile',
+            title: 'Profile | CodeClash',
+            loadComponent: () =>
+              import('./features/account/profile/profile').then((m) => m.Profile),
+          },
+          {
+            path: 'password',
+            title: 'Change password | CodeClash',
+            loadComponent: () =>
+              import('./features/account/change-password/change-password').then(
+                (m) => m.ChangePassword,
+              ),
+          },
+        ],
       },
     ],
   },

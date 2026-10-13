@@ -1,0 +1,101 @@
+<div class="max-w-2xl">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-3xl text-ink sm:text-4xl">Profile</h1>
+      <p class="mt-2 text-ink-muted">How you appear on CodeClash.</p>
+    </div>
+    @if (user.hasValue() && !editing()) {
+      <button #editButton ccButton variant="secondary" type="button" (click)="startEditing()">
+        Edit profile
+      </button>
+    }
+  </div>
+
+  @if (loadError(); as message) {
+    <cc-alert tone="error" class="mt-8">{{ message }}</cc-alert>
+  } @else if (user.hasValue()) {
+    @let profile = user.value();
+    <cc-panel class="mt-8">
+      @if (editing()) {
+        @if (formError(); as message) {
+          <cc-alert tone="error" class="mb-6">{{ message }}</cc-alert>
+        }
+        <form [formRoot]="profileForm" class="flex flex-col gap-5">
+          <cc-text-field [formField]="profileForm.name" label="Name" autocomplete="name" />
+          <cc-text-field
+            autocapitalize="none"
+            [spellcheck]="false"
+            [formField]="profileForm.username"
+            label="Username"
+            hint="Letters, numbers, _ and -. Others see this on leaderboards."
+            autocomplete="off"
+          />
+          <div class="flex flex-wrap gap-3">
+            <button ccButton type="submit" [loading]="profileForm().submitting()">
+              Save changes
+            </button>
+            <button ccButton variant="ghost" type="button" (click)="cancelEditing()">Cancel</button>
+          </div>
+        </form>
+      } @else {
+        <dl class="grid gap-x-8 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm text-ink-muted">Name</dt>
+            <dd class="mt-1 text-lg font-semibold break-words text-ink">{{ profile.name }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-ink-muted">Username</dt>
+            <dd class="mt-1 text-lg font-semibold break-words text-ink">{{ profile.username }}</dd>
+          </div>
+          <div class="sm:col-span-2">
+            <dt class="text-sm text-ink-muted">Email</dt>
+            <dd class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 break-all text-ink">
+              {{ profile.email }}
+              @if (profile.isVerified) {
+                <span
+                  class="inline-flex items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-sm font-medium text-success"
+                >
+                  <svg lucideBadgeCheck class="size-4"></svg>
+                  Verified
+                </span>
+              } @else {
+                <a
+                  [routerLink]="verifyEmailPath"
+                  [queryParams]="{ username: profile.username }"
+                  aria-label="Not verified. Verify your email"
+                  class="inline-flex items-center gap-1 rounded-chip bg-danger/10 px-2 py-0.5 text-sm font-medium text-danger underline-offset-4 hover:underline"
+                >
+                  <svg lucideCircleExclamationPoint class="size-4"></svg>
+                  Not verified
+                </a>
+              }
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-ink-muted">Role</dt>
+            <dd class="mt-1 text-ink capitalize">{{ roleName() ?? 'None' }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-ink-muted">Member since</dt>
+            <dd class="mt-1 text-ink tabular-nums">
+              {{ profile.createdAt | date: 'longDate' : 'UTC' }}
+            </dd>
+          </div>
+        </dl>
+      }
+    </cc-panel>
+
+    <cc-panel class="mt-6 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl text-ink">Password</h2>
+        <p class="mt-1 text-sm text-ink-muted">Changing it signs you out on your other devices.</p>
+      </div>
+      <a ccButton variant="secondary" [routerLink]="changePasswordPath">Change password</a>
+    </cc-panel>
+  } @else {
+    <div class="mt-8 flex items-center gap-3 text-ink-muted" role="status">
+      <cc-spinner class="size-5" />
+      Loading your profile
+    </div>
+  }
+</div>
