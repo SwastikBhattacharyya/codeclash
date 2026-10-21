@@ -1,0 +1,100 @@
+spring:
+  application:
+    name: runner-service
+  kafka:
+    consumer:
+      group-id: ${spring.application.name}
+      properties:
+        allow.auto.create.topics: false
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+      compression-type: zstd
+      properties:
+        max.request.size: 16777216
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+  threads:
+    virtual:
+      enabled: true
+
+logging:
+  level:
+    org.apache.kafka: warn
+    org.springframework.kafka.listener.KafkaMessageListenerContainer: warn
+
+jdbc:
+  includes: query
+
+management:
+  observations:
+    annotations:
+      enabled: true
+  metrics:
+    distribution:
+      percentiles-histogram:
+        submission.judge: true
+        submission.queue.wait: true
+        sandbox.acquire: true
+        sandbox.compile: true
+        sandbox.run: true
+
+codeclash:
+  question:
+    cdc-consumer:
+      topic: problem.question.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+  test-case:
+    cdc-consumer:
+      topic: problem.test-case.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+      dead-letter-max-message-size: 16MB
+  submission:
+    cdc-consumer:
+      topic: problem.submission.cdc
+      retry:
+        max-attempts: 5
+        initial-interval: 1s
+        multiplier: 2.0
+        max-interval: 30s
+    state-topic:
+      name: runner.submission.state
+      partitions: 3
+    worker:
+      max-concurrent: 4
+      lease: 5m
+      max-attempts: 3
+      poll-interval: 1s
+    time-multipliers:
+      cpp: 1.0
+      java: 2.0
+      python: 3.0
+  sandbox:
+    image: codeclash-runner:local
+    instance-label: ${spring.application.name}
+    warm-size: 2
+    compile-timeout: 10s
+    memory: 1GB
+    pids-limit: 128
+    cpus: 1
+    tmpfs-size: 64MB
+    docker-timeout-slack: 5s
+
+namastack:
+  outbox:
+    jdbc:
+      table-names:
+        record: outbox_records
+        instance: outbox_instances
+        partition: outbox_partitions
+      schema-initialization:
+        enabled: false
