@@ -71,6 +71,7 @@ dependencies {
   implementation(project(":lib:common"))
   implementation(project(":lib:contest-contracts"))
   implementation(project(":lib:problem-contracts"))
+  implementation(project(":lib:runner-contracts"))
 
   developmentOnly(platform(libs.spring.boot.bom))
   developmentOnly(libs.spring.boot.devtools)
