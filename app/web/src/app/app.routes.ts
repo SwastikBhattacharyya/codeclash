@@ -1,4 +1,5 @@
 import type { Routes } from '@angular/router';
+import { adminGuard, adminMatchGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
 import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
@@ -26,6 +27,21 @@ export const routes: Routes = [
         title: 'Verify email | CodeClash',
         loadComponent: () =>
           import('./features/auth/verify-email/verify-email').then((m) => m.VerifyEmail),
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./layouts/admin-layout').then((m) => m.AdminLayout),
+    canMatch: [adminMatchGuard],
+    canActivate: [adminGuard],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Overview | Admin | CodeClash',
+        loadComponent: () =>
+          import('./features/admin/overview/overview').then((m) => m.AdminOverview),
       },
     ],
   },

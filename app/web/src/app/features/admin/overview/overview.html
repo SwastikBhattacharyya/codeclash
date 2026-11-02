@@ -1,0 +1,39 @@
+<div class="flex flex-col gap-2">
+  <h1 class="text-3xl text-ink sm:text-4xl">Overview</h1>
+  <p class="max-w-2xl text-ink-muted">Manage problems, contests and who can access CodeClash.</p>
+</div>
+
+@for (group of groups(); track group.label) {
+  <section class="flex flex-col gap-4" [attr.aria-labelledby]="'admin-group-' + group.label">
+    <h2
+      [id]="'admin-group-' + group.label"
+      class="text-xs font-semibold tracking-widest text-ink-muted uppercase font-stretch-normal"
+    >
+      {{ group.label }}
+    </h2>
+    <ul class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      @for (section of group.sections; track section.key) {
+        <li class="flex">
+          <a
+            [routerLink]="section.path"
+            class="group flex w-full items-start gap-4 rounded-panel border border-line bg-raised p-5 transition-colors hover:border-ink-muted"
+          >
+            <span
+              class="inline-flex size-10 shrink-0 items-center justify-center rounded-control bg-accent text-on-accent"
+            >
+              <cc-admin-section-icon [section]="section.key" class="size-5" />
+            </span>
+            <span class="flex min-w-0 flex-1 flex-col gap-1">
+              <span class="font-semibold text-ink">{{ section.label }}</span>
+              <span class="text-sm text-ink-muted">{{ section.description }}</span>
+            </span>
+            <svg
+              lucideChevronRight
+              class="mt-0.5 size-5 shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5"
+            ></svg>
+          </a>
+        </li>
+      }
+    </ul>
+  </section>
+}
