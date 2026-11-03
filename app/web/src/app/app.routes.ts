@@ -1,6 +1,12 @@
 import type { Routes } from '@angular/router';
-import { adminGuard, adminMatchGuard } from './core/admin/admin-guards';
+import { CATEGORY_WRITE, TAG_WRITE } from './core/admin/admin-access';
+import { adminGuard, adminMatchGuard, sectionGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
+import {
+  CATEGORY_LOOKUP,
+  LOOKUP_DATA_KEY,
+  TAG_LOOKUP,
+} from './features/admin/lookup/lookup-config';
 import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
@@ -42,6 +48,22 @@ export const routes: Routes = [
         title: 'Overview | Admin | CodeClash',
         loadComponent: () =>
           import('./features/admin/overview/overview').then((m) => m.AdminOverview),
+      },
+      {
+        path: 'tags',
+        title: 'Tags | Admin | CodeClash',
+        canActivate: [sectionGuard(TAG_WRITE)],
+        data: { [LOOKUP_DATA_KEY]: TAG_LOOKUP },
+        loadComponent: () =>
+          import('./features/admin/lookup/lookup-page').then((m) => m.LookupPage),
+      },
+      {
+        path: 'categories',
+        title: 'Categories | Admin | CodeClash',
+        canActivate: [sectionGuard(CATEGORY_WRITE)],
+        data: { [LOOKUP_DATA_KEY]: CATEGORY_LOOKUP },
+        loadComponent: () =>
+          import('./features/admin/lookup/lookup-page').then((m) => m.LookupPage),
       },
     ],
   },

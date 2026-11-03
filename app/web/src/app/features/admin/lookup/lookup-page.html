@@ -1,0 +1,110 @@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <cc-admin-heading [section]="section" />
+  <button
+    #newButton
+    ccButton
+    type="button"
+    class="shrink-0 self-start sm:self-auto"
+    (click)="openCreate()"
+  >
+    <svg lucidePlus class="size-5"></svg>
+    New {{ config.noun }}
+  </button>
+</div>
+
+<form [formRoot]="searchForm" role="search" class="max-w-md">
+  <cc-text-field
+    [formField]="searchForm.name"
+    label="Search by name"
+    autocomplete="off"
+    [spellcheck]="false"
+  />
+</form>
+
+@if (items.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>{{ section.label }} couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="items.reload()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-6">
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns"
+    [emptyText]="emptyText()"
+    [loading]="items.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-item>
+      <th
+        scope="row"
+        class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium whitespace-nowrap text-ink sm:px-5"
+      >
+        {{ item.name }}
+      </th>
+      <td class="px-4 py-3 text-ink-muted sm:px-5">
+        <span class="block max-w-xs truncate" [title]="item.description">{{
+          item.description
+        }}</span>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="item.createdAt" [title]="item.createdAt | date: 'medium'">{{
+          item.createdAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="item.updatedAt" [title]="item.updatedAt | date: 'medium'">{{
+          item.updatedAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [attr.aria-label]="'Edit ' + item.name"
+            (click)="openEdit(item)"
+          >
+            <svg lucidePencil class="size-4.5"></svg>
+          </button>
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+            [attr.aria-label]="'Delete ' + item.name"
+            (click)="openDelete(item)"
+          >
+            <svg lucideTrash class="size-4.5"></svg>
+          </button>
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownItems(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (formTarget(); as target) {
+  <cc-lookup-form-dialog
+    [config]="config"
+    [item]="target.item"
+    (saved)="onSaved($event)"
+    (gone)="onGone()"
+    (closed)="formTarget.set(null)"
+  />
+}
+
+@if (deleteTarget(); as item) {
+  <cc-lookup-delete-dialog
+    [config]="config"
+    [item]="item"
+    (deleted)="onDeleted($event)"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}
