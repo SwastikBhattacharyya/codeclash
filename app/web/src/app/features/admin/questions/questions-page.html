@@ -1,0 +1,159 @@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <cc-admin-heading [section]="section" />
+  <a #newButton ccButton class="shrink-0 self-start sm:self-auto" [routerLink]="newPath()">
+    <svg lucidePlus class="size-5"></svg>
+    New question
+  </a>
+</div>
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+  <form [formRoot]="searchForm" role="search" class="flex-1 lg:max-w-md">
+    <cc-text-field
+      [formField]="searchForm.title"
+      label="Search by title"
+      autocomplete="off"
+      [spellcheck]="false"
+    />
+  </form>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:flex">
+    <cc-select
+      class="lg:w-36"
+      label="Status"
+      [options]="statusOptions"
+      [value]="query().status ?? ''"
+      (valueChange)="onStatusFilter($event)"
+    />
+    <cc-select
+      class="lg:w-44"
+      label="Category"
+      [options]="categoryOptions()"
+      [value]="query().category ?? ''"
+      (valueChange)="onCategoryFilter($event)"
+    />
+    <cc-select
+      class="lg:w-44"
+      label="Tag"
+      [options]="tagOptions()"
+      [value]="query().tag ?? ''"
+      (valueChange)="onTagFilter($event)"
+    />
+  </div>
+</div>
+
+@if (questions.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Questions couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="questions.reload()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-6">
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns"
+    [emptyText]="emptyText()"
+    [loading]="questions.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-question>
+      <th scope="row" class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium sm:px-5">
+        <a
+          [routerLink]="detailPath(question)"
+          class="block max-w-[40vw] truncate text-ink underline-offset-4 hover:underline sm:max-w-64"
+          [title]="question.title"
+          >{{ question.title }}</a
+        >
+      </th>
+      <td class="px-4 py-3 whitespace-nowrap sm:px-5">
+        @if (question.isVisible) {
+          <span class="rounded-chip bg-success/10 px-2 py-0.5 text-xs font-medium text-success"
+            >Published</span
+          >
+        } @else {
+          <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs font-medium text-ink-muted"
+            >Draft</span
+          >
+        }
+      </td>
+      <td class="px-4 py-3 sm:px-5">
+        @let categoryLabelList = categoryLabels(question);
+        @if (categoryLabelList.length === 0) {
+          <span class="text-ink-muted">—</span>
+        } @else {
+          <span class="flex max-w-56 flex-wrap gap-1">
+            @for (label of categoryLabelList; track $index) {
+              <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs text-ink">{{ label }}</span>
+            }
+          </span>
+        }
+      </td>
+      <td class="px-4 py-3 sm:px-5">
+        @let tagLabelList = tagLabels(question);
+        @if (tagLabelList.length === 0) {
+          <span class="text-ink-muted">—</span>
+        } @else {
+          <span class="flex max-w-56 flex-wrap gap-1">
+            @for (label of tagLabelList; track $index) {
+              <span class="rounded-chip px-1 py-0.5 text-xs text-ink-muted">#{{ label }}</span>
+            }
+          </span>
+        }
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        {{ limits(question) }}
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="question.updatedAt" [title]="question.updatedAt | date: 'medium'">{{
+          question.updatedAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          <a
+            class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [routerLink]="detailPath(question)"
+            [attr.aria-label]="'Edit ' + question.title"
+            title="Edit"
+          >
+            <svg lucidePencil class="size-4.5"></svg>
+          </a>
+          @if (question.isVisible) {
+            <a
+              class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [routerLink]="[problemPath, question.id]"
+              [attr.aria-label]="'View ' + question.title + ' on the site'"
+              title="View on site"
+            >
+              <svg lucideEye class="size-4.5"></svg>
+            </a>
+          }
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+            [attr.aria-label]="'Delete ' + question.title"
+            title="Delete"
+            (click)="openDelete(question)"
+          >
+            <svg lucideTrash class="size-4.5"></svg>
+          </button>
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownQuestions(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (deleteTarget(); as question) {
+  <cc-question-delete-dialog
+    [question]="question"
+    (deleted)="onDeleted($event)"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}

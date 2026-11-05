@@ -1,0 +1,140 @@
+<div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+  <h2 class="text-xl text-ink">
+    Test cases
+    @if (total() !== null) {
+      <span class="text-base text-ink-muted tabular-nums">({{ total() }})</span>
+    }
+  </h2>
+  <div class="flex flex-wrap items-end gap-3">
+    <cc-select
+      class="w-36"
+      label="Visibility"
+      [options]="visibilityOptions"
+      [value]="query().visibility ?? ''"
+      (valueChange)="onVisibilityFilter($event)"
+    />
+    @if (canPublishAll()) {
+      @if (hiddenCount() === 0) {
+        <p class="min-h-11 content-center text-sm text-ink-muted">All test cases are public</p>
+      } @else {
+        <button
+          ccButton
+          variant="secondary"
+          type="button"
+          [disabled]="hiddenCount() === null"
+          (click)="publishOpen.set(true)"
+        >
+          <svg lucideEye class="size-5"></svg>
+          Make all public
+        </button>
+      }
+    }
+    @if (canWrite()) {
+      <button #addButton ccButton variant="secondary" type="button" (click)="openAdd()">
+        <svg lucidePlus class="size-5"></svg>
+        Add test case
+      </button>
+    }
+  </div>
+</div>
+
+@if (testCases.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Test cases couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="testCases.reload()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<cc-data-table
+  caption="Test cases"
+  [columns]="columns"
+  [emptyText]="emptyText()"
+  [loading]="testCases.isLoading()"
+>
+  <ng-template [ccTableRow]="rows()" let-testCase>
+    <th
+      scope="row"
+      class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium whitespace-nowrap text-ink tabular-nums sm:px-5"
+    >
+      {{ numberOf(testCase) }}
+    </th>
+    <td class="px-4 py-3 whitespace-nowrap sm:px-5">
+      @if (testCase.isPublic) {
+        <span class="rounded-chip bg-success/10 px-2 py-0.5 text-xs font-medium text-success"
+          >Public</span
+        >
+      } @else {
+        <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs font-medium text-ink-muted"
+          >Hidden</span
+        >
+      }
+    </td>
+    <td class="px-4 py-3 font-mono text-xs whitespace-pre text-ink-muted sm:px-5">
+      {{ preview(testCase.input) }}
+    </td>
+    <td class="px-4 py-3 font-mono text-xs whitespace-pre text-ink-muted sm:px-5">
+      {{ preview(testCase.output) }}
+    </td>
+    <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+      @if (canWrite()) {
+        <div class="flex justify-end gap-1">
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [attr.aria-label]="'Edit test case ' + numberOf(testCase)"
+            title="Edit"
+            (click)="openEdit(testCase)"
+          >
+            <svg lucidePencil class="size-4.5"></svg>
+          </button>
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+            [attr.aria-label]="'Delete test case ' + numberOf(testCase)"
+            title="Delete"
+            (click)="openDelete(testCase)"
+          >
+            <svg lucideTrash class="size-4.5"></svg>
+          </button>
+        </div>
+      }
+    </td>
+  </ng-template>
+</cc-data-table>
+
+@if (shownTestCases(); as page) {
+  <cc-pager [page]="page.page" [hasNext]="page.hasNext" [param]="pageParam" />
+}
+
+@if (editTarget(); as target) {
+  <cc-test-case-dialog
+    [questionId]="questionId()"
+    [testCase]="target.testCase"
+    [number]="target.testCase ? numberOf(target.testCase) : null"
+    (saved)="onSaved($event)"
+    (gone)="onGone()"
+    (closed)="editTarget.set(null)"
+  />
+}
+
+@if (deleteTarget(); as testCase) {
+  <cc-test-case-delete-dialog
+    [questionId]="questionId()"
+    [testCase]="testCase"
+    [number]="numberOf(testCase)"
+    (deleted)="onDeleted()"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}
+
+@if (publishOpen()) {
+  <cc-test-case-publish-dialog
+    [questionId]="questionId()"
+    [count]="hiddenCount() ?? 0"
+    (published)="onPublished($event)"
+    (closed)="onPublishClosed()"
+  />
+}

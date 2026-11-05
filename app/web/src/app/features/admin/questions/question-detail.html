@@ -1,0 +1,181 @@
+<a
+  [routerLink]="section.path"
+  class="inline-flex items-center gap-1.5 self-start text-sm text-ink-muted transition-colors hover:text-ink"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Questions
+</a>
+
+@if (ready()) {
+  @let question = loadedQuestion();
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex min-w-0 flex-col gap-2">
+      <h1 class="flex flex-wrap items-center gap-3 text-3xl break-words text-ink sm:text-4xl">
+        <span class="min-w-0">{{ title() }}</span>
+        @if (question) {
+          @if (question.isVisible) {
+            <span class="rounded-chip bg-success/10 px-2 py-0.5 text-sm font-medium text-success"
+              >Published</span
+            >
+          } @else {
+            <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-sm font-medium text-ink-muted"
+              >Draft</span
+            >
+          }
+        }
+      </h1>
+      @if (question) {
+        <p class="text-sm text-ink-muted">
+          Updated
+          <time
+            [attr.datetime]="question.updatedAt"
+            [title]="question.updatedAt | date: 'medium'"
+            >{{ question.updatedAt | date: 'd MMM y' }}</time
+          >
+        </p>
+      }
+    </div>
+    @if (question) {
+      <div class="flex flex-wrap gap-3">
+        @if (question.isVisible) {
+          <a ccButton variant="secondary" [routerLink]="[problemPath, question.id]">
+            <svg lucideEye class="size-5"></svg>
+            View on site
+          </a>
+        }
+        @if (canViewSubmissions()) {
+          <a
+            ccButton
+            variant="secondary"
+            [routerLink]="submissionsPath"
+            [queryParams]="{ question_id: question.id }"
+          >
+            <svg lucideListChecks class="size-5"></svg>
+            Submissions
+          </a>
+        }
+        <button ccButton variant="secondary" type="button" (click)="deleteOpen.set(true)">
+          <svg lucideTrash class="size-5"></svg>
+          Delete
+        </button>
+      </div>
+    }
+  </div>
+
+  <form [formRoot]="questionForm" class="flex flex-col gap-6">
+    @if (formError(); as message) {
+      <cc-forbidden-alert [message]="message" [permissions]="missing()" />
+    }
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="flex min-w-0 flex-col gap-5">
+        <cc-text-field [formField]="questionForm.title" label="Title" autocomplete="off" />
+        <cc-text-area
+          [formField]="questionForm.summary"
+          label="Summary"
+          hint="Shown in the problem list. Plain text."
+          [rows]="3"
+          [limit]="summaryMaxSize"
+        />
+        <cc-markdown-editor
+          [formField]="questionForm.description"
+          label="Description"
+          [hint]="descriptionHint"
+          [limit]="descriptionMaxSize"
+        />
+      </div>
+
+      <div class="flex min-w-0 flex-col gap-5">
+        <cc-checkbox [formField]="questionForm.isVisible" label="Published (visible to users)" />
+        <div class="grid grid-cols-2 gap-3 lg:grid-cols-1">
+          <cc-text-field
+            [formField]="questionForm.maxRunTimeMs"
+            label="Time limit (ms)"
+            [hint]="runTimeHint"
+            inputmode="numeric"
+            autocomplete="off"
+            [spellcheck]="false"
+          />
+          <cc-text-field
+            [formField]="questionForm.maxRamLimitMb"
+            label="Memory limit (MB)"
+            [hint]="ramHint"
+            inputmode="numeric"
+            autocomplete="off"
+            [spellcheck]="false"
+          />
+        </div>
+        <cc-chip-picker
+          [formField]="questionForm.categories"
+          label="Categories"
+          [options]="categoryOptions()"
+          [status]="categoryStatus()"
+          (retry)="categories.reload()"
+          errorText="Categories couldn’t be loaded."
+          emptyText="No categories yet"
+        />
+        <cc-chip-picker
+          [formField]="questionForm.tags"
+          label="Tags"
+          prefix="#"
+          [options]="tagOptions()"
+          [status]="tagStatus()"
+          (retry)="tags.reload()"
+          errorText="Tags couldn’t be loaded."
+          emptyText="No tags yet"
+        />
+      </div>
+    </div>
+
+    <div
+      class="-mx-4 flex flex-wrap justify-end gap-3 border-t border-line bg-surface/95 px-4 py-4 backdrop-blur sm:sticky sm:bottom-0 sm:z-20 sm:mx-0 sm:px-0"
+    >
+      @if (!creating()) {
+        <button
+          ccButton
+          variant="ghost"
+          type="button"
+          [disabled]="!dirty() || questionForm().submitting()"
+          (click)="discard()"
+        >
+          Discard changes
+        </button>
+      }
+      <button
+        ccButton
+        type="submit"
+        [loading]="questionForm().submitting()"
+        [disabled]="!creating() && !dirty()"
+      >
+        {{ creating() ? 'Create question' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+
+  @if (question) {
+    <cc-test-cases-section [questionId]="question.id" />
+  } @else {
+    <cc-alert>Save the question first to add test cases.</cc-alert>
+  }
+
+  @if (deleteOpen() && question) {
+    <cc-question-delete-dialog
+      [question]="question"
+      (deleted)="onDeleted($event)"
+      (gone)="onGone()"
+      (closed)="deleteOpen.set(false)"
+    />
+  }
+} @else if (loadError(); as message) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>{{ message }}</span>
+      <button ccButton variant="secondary" type="button" (click)="question.reload()">Retry</button>
+    </div>
+  </cc-alert>
+} @else {
+  <div class="flex items-center gap-3 text-ink-muted" role="status">
+    <cc-spinner class="size-5" />
+    Loading question
+  </div>
+}

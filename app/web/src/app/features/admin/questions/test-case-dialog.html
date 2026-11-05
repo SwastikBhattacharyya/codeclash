@@ -1,0 +1,85 @@
+<cc-dialog [title]="title()" [wide]="true" (closed)="close()">
+  <form [formRoot]="testCaseForm" class="flex flex-col gap-5">
+    @if (formError(); as message) {
+      <cc-forbidden-alert [message]="message" [permissions]="missing()" />
+    }
+    <cc-code-area [formField]="testCaseForm.input" label="Input" [rows]="8" [limit]="dataMaxSize">
+      <button ccCodeAreaAction ccButton variant="ghost" type="button" (click)="chooseFile('input')">
+        <svg lucideUpload class="size-4"></svg>
+        Load input from file
+      </button>
+    </cc-code-area>
+    <input
+      #inputFile
+      type="file"
+      accept=".txt,.in,text/plain"
+      class="hidden"
+      tabindex="-1"
+      aria-hidden="true"
+      (change)="loadFile('input', $event)"
+    />
+    <p class="-mt-3 text-sm empty:hidden" aria-live="polite">
+      @if (fileStatus(); as status) {
+        @if (status.field === 'input') {
+          <span [class.text-danger]="status.error" [class.text-ink-muted]="!status.error">{{
+            status.message
+          }}</span>
+        }
+      }
+    </p>
+    <cc-code-area
+      [formField]="testCaseForm.output"
+      label="Expected output"
+      [rows]="8"
+      [limit]="dataMaxSize"
+    >
+      <button
+        ccCodeAreaAction
+        ccButton
+        variant="ghost"
+        type="button"
+        (click)="chooseFile('output')"
+      >
+        <svg lucideUpload class="size-4"></svg>
+        Load output from file
+      </button>
+    </cc-code-area>
+    <input
+      #outputFile
+      type="file"
+      accept=".txt,.out,.ans,text/plain"
+      class="hidden"
+      tabindex="-1"
+      aria-hidden="true"
+      (change)="loadFile('output', $event)"
+    />
+    <p class="-mt-3 text-sm empty:hidden" aria-live="polite">
+      @if (fileStatus(); as status) {
+        @if (status.field === 'output') {
+          <span [class.text-danger]="status.error" [class.text-ink-muted]="!status.error">{{
+            status.message
+          }}</span>
+        }
+      }
+    </p>
+    <cc-checkbox [formField]="testCaseForm.isPublic" label="Public (shown as an example)" />
+    <p class="text-sm text-ink-muted">
+      Windows line endings are converted to plain newlines when saved. Everything else, including
+      trailing newlines, is kept exactly.
+    </p>
+    <div class="flex flex-wrap justify-end gap-3">
+      <button
+        ccButton
+        variant="ghost"
+        type="button"
+        [disabled]="testCaseForm().submitting()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button ccButton type="submit" [loading]="testCaseForm().submitting()">
+        {{ creating() ? 'Add test case' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+</cc-dialog>

@@ -1,5 +1,5 @@
 import type { Routes } from '@angular/router';
-import { CATEGORY_WRITE, TAG_WRITE } from './core/admin/admin-access';
+import { CATEGORY_WRITE, QUESTION_WRITE, TAG_WRITE } from './core/admin/admin-access';
 import { adminGuard, adminMatchGuard, sectionGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
 import {
@@ -7,6 +7,7 @@ import {
   LOOKUP_DATA_KEY,
   TAG_LOOKUP,
 } from './features/admin/lookup/lookup-config';
+import { questionUnsavedGuard } from './features/admin/questions/question-unsaved.guard';
 import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
@@ -48,6 +49,29 @@ export const routes: Routes = [
         title: 'Overview | Admin | CodeClash',
         loadComponent: () =>
           import('./features/admin/overview/overview').then((m) => m.AdminOverview),
+      },
+      {
+        path: 'questions',
+        title: 'Questions | Admin | CodeClash',
+        canActivate: [sectionGuard(QUESTION_WRITE)],
+        loadComponent: () =>
+          import('./features/admin/questions/questions-page').then((m) => m.QuestionsPage),
+      },
+      {
+        path: 'questions/new',
+        title: 'New question | Admin | CodeClash',
+        canActivate: [sectionGuard(QUESTION_WRITE)],
+        canDeactivate: [questionUnsavedGuard],
+        loadComponent: () =>
+          import('./features/admin/questions/question-detail').then((m) => m.QuestionDetail),
+      },
+      {
+        path: 'questions/:id',
+        title: 'Question | Admin | CodeClash',
+        canActivate: [sectionGuard(QUESTION_WRITE)],
+        canDeactivate: [questionUnsavedGuard],
+        loadComponent: () =>
+          import('./features/admin/questions/question-detail').then((m) => m.QuestionDetail),
       },
       {
         path: 'tags',

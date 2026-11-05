@@ -1,0 +1,83 @@
+<div role="group" [attr.aria-labelledby]="labelId" class="flex flex-col gap-2">
+  <span [id]="labelId" class="text-sm font-medium text-ink">{{ label() }}</span>
+
+  @if (chips().length > 0) {
+    <ul class="flex flex-wrap gap-1.5" [attr.aria-label]="'Selected ' + label().toLowerCase()">
+      @for (chip of chips(); track chip.id) {
+        <li
+          class="inline-flex items-center gap-1 rounded-chip border border-line bg-ink/6 py-0.5 pr-0.5 pl-2 text-sm text-ink"
+        >
+          {{ prefix() }}{{ chip.name }}
+          <button
+            type="button"
+            class="inline-flex size-6 cursor-pointer items-center justify-center rounded-chip text-ink-muted transition-colors hover:bg-ink/10 hover:text-ink disabled:cursor-not-allowed"
+            [attr.aria-label]="'Remove ' + chip.name"
+            [disabled]="disabled()"
+            (click)="remove(chip)"
+          >
+            <svg lucideX class="size-3.5"></svg>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="text-sm text-ink-muted">None selected</p>
+  }
+
+  <div class="rounded-control border border-line bg-raised">
+    <div class="border-b border-line p-2">
+      <cc-text-field
+        [label]="'Filter ' + label().toLowerCase()"
+        autocomplete="off"
+        autocapitalize="none"
+        [spellcheck]="false"
+        [disabled]="disabled()"
+        [(value)]="filter"
+      />
+    </div>
+    @if (status() === 'loading') {
+      <p class="px-3 py-4 text-sm text-ink-muted" role="status">Loading…</p>
+    } @else if (status() === 'error') {
+      <div class="flex flex-wrap items-center justify-between gap-3 px-3 py-3 text-sm text-danger">
+        <span role="alert">{{ errorText() }}</span>
+        <button ccButton variant="secondary" type="button" (click)="retry.emit()">Retry</button>
+      </div>
+    } @else if (visible().length === 0) {
+      <p class="px-3 py-4 text-sm text-ink-muted">
+        {{ options().length === 0 ? emptyText() : 'No matches' }}
+      </p>
+    } @else {
+      <ul class="max-h-56 overflow-y-auto py-1">
+        @for (option of visible(); track option.id) {
+          <li>
+            <label
+              class="flex min-h-10 cursor-pointer items-center gap-3 px-3 py-1.5 text-sm text-ink transition-colors hover:bg-ink/4 has-disabled:cursor-not-allowed has-disabled:opacity-60"
+            >
+              <span class="relative inline-flex size-5 shrink-0">
+                <input
+                  type="checkbox"
+                  [checked]="selectedSet().has(option.id)"
+                  [disabled]="disabled()"
+                  (change)="toggle(option, $event)"
+                  class="peer size-5 cursor-pointer appearance-none rounded-chip border border-ink-muted bg-raised transition-colors checked:border-ink checked:bg-accent disabled:cursor-not-allowed"
+                />
+                <svg
+                  lucideCheck
+                  class="pointer-events-none absolute inset-0 m-auto size-4 text-on-accent opacity-0 peer-checked:opacity-100"
+                  [strokeWidth]="3"
+                ></svg>
+              </span>
+              {{ prefix() }}{{ option.name }}
+            </label>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+
+  <div [id]="errorId" aria-live="polite">
+    @if (showError()) {
+      <p class="text-sm text-danger">{{ errorMessage() }}</p>
+    }
+  </div>
+</div>
