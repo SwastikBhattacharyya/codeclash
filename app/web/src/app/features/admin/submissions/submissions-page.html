@@ -1,0 +1,214 @@
+<div #heading tabindex="-1" class="outline-none">
+  <cc-admin-heading [section]="section" />
+</div>
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+  <form [formRoot]="searchForm" role="search" class="flex-1 lg:max-w-xs">
+    <cc-text-field
+      [formField]="searchForm.username"
+      label="Username (exact)"
+      autocomplete="off"
+      autocapitalize="none"
+      [spellcheck]="false"
+    />
+  </form>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:flex">
+    <cc-select
+      class="lg:w-52"
+      label="Verdict"
+      [options]="stateOptions"
+      [value]="query().state ?? ''"
+      (valueChange)="onStateFilter($event)"
+    />
+    <cc-select
+      class="lg:w-36"
+      label="Language"
+      [options]="languageOptions"
+      [value]="query().language ?? ''"
+      (valueChange)="onLanguageFilter($event)"
+    />
+  </div>
+</div>
+
+@if (query().questionId) {
+  <div class="flex flex-wrap items-center gap-2 text-sm">
+    <span class="text-ink-muted">Question:</span>
+    <span
+      class="inline-flex items-center gap-1 rounded-chip border border-line bg-ink/6 py-0.5 pr-0.5 pl-2 text-ink"
+    >
+      {{ filterQuestionTitle() }}
+      <button
+        type="button"
+        class="inline-flex size-6 cursor-pointer items-center justify-center rounded-chip text-ink-muted transition-colors hover:bg-ink/10 hover:text-ink"
+        aria-label="Clear question filter"
+        (click)="clearQuestionFilter()"
+      >
+        <svg lucideX class="size-3.5"></svg>
+      </button>
+    </span>
+  </div>
+}
+
+@if (submissions.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Submissions couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="submissions.reload()">
+        Retry
+      </button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-4">
+  @if (rows().length > 0) {
+    @let state = selectAllState();
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <label class="inline-flex cursor-pointer items-center gap-2 text-sm text-ink">
+        <span class="relative inline-flex size-5 shrink-0">
+          <input
+            type="checkbox"
+            [checked]="state === 'all'"
+            [indeterminate]="state === 'some'"
+            (change)="toggleAll($event)"
+            class="peer size-5 cursor-pointer appearance-none rounded-chip border border-ink-muted bg-raised transition-colors checked:border-ink checked:bg-accent indeterminate:border-ink indeterminate:bg-accent"
+          />
+          @if (state === 'some') {
+            <svg
+              lucideMinus
+              class="pointer-events-none absolute inset-0 m-auto size-4 text-on-accent"
+              [strokeWidth]="3"
+            ></svg>
+          } @else {
+            <svg
+              lucideCheck
+              class="pointer-events-none absolute inset-0 m-auto size-4 text-on-accent opacity-0 peer-checked:opacity-100"
+              [strokeWidth]="3"
+            ></svg>
+          }
+        </span>
+        Select all on this page
+      </label>
+      <button
+        ccButton
+        variant="secondary"
+        type="button"
+        [disabled]="selectedSubmissions().length === 0"
+        (click)="openBulkDelete()"
+      >
+        <svg lucideTrash class="size-5"></svg>
+        Delete selected ({{ selectedSubmissions().length }})
+      </button>
+    </div>
+  }
+
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns"
+    [emptyText]="emptyText()"
+    [loading]="submissions.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-submission>
+      <td class="w-12 px-4 py-3 sm:px-5">
+        <span class="relative inline-flex size-5 shrink-0 align-middle">
+          <input
+            type="checkbox"
+            [checked]="isSelected(submission)"
+            [attr.aria-label]="'Select submission by @' + submission.username"
+            (change)="toggleSelected(submission, $event)"
+            class="peer size-5 cursor-pointer appearance-none rounded-chip border border-ink-muted bg-raised transition-colors checked:border-ink checked:bg-accent"
+          />
+          <svg
+            lucideCheck
+            class="pointer-events-none absolute inset-0 m-auto size-4 text-on-accent opacity-0 peer-checked:opacity-100"
+            [strokeWidth]="3"
+          ></svg>
+        </span>
+      </td>
+      <th
+        scope="row"
+        class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium whitespace-nowrap text-ink sm:px-5"
+      >
+        &#64;{{ submission.username }}
+      </th>
+      <td class="px-4 py-3 text-ink-muted sm:px-5">
+        @let title = questionTitle(submission);
+        <span class="block max-w-56 truncate" [title]="title ?? ''">{{ title ?? '—' }}</span>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink sm:px-5">
+        {{ languageLabels[submission.language] }}
+      </td>
+      <td class="px-4 py-3 sm:px-5">
+        <cc-verdict-badge [state]="submission.state" />
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        {{ formatTime(submission.timeTakenMs) }}
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        {{ formatMemory(submission.memoryUsedKb) }}
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time
+          [attr.datetime]="submission.createdAt"
+          [title]="submission.createdAt | date: 'medium'"
+          >{{ submission.createdAt | date: 'd MMM y, HH:mm' }}</time
+        >
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [attr.aria-label]="'View submission by @' + submission.username"
+            title="View"
+            (click)="openView(submission)"
+          >
+            <svg lucideEye class="size-4.5"></svg>
+          </button>
+          <button
+            type="button"
+            class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+            [attr.aria-label]="'Delete submission by @' + submission.username"
+            title="Delete"
+            (click)="deleteTarget.set(submission)"
+          >
+            <svg lucideTrash class="size-4.5"></svg>
+          </button>
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownSubmissions(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (viewed(); as submission) {
+  <cc-submission-dialog
+    [submission]="submission"
+    [questionTitle]="questionTitle(submission)"
+    [canDelete]="true"
+    (closed)="closeView()"
+    (deleteRequested)="requestDelete($event)"
+  />
+}
+
+@if (deleteTarget(); as submission) {
+  <cc-submission-delete-dialog
+    [submission]="submission"
+    (deleted)="onDeleted()"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}
+
+@if (bulkTargets(); as targets) {
+  <cc-submissions-bulk-delete-dialog
+    [submissions]="targets"
+    (finished)="onBulkFinished($event)"
+    (closed)="bulkTargets.set(null)"
+  />
+}

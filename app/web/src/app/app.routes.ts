@@ -1,5 +1,10 @@
 import type { Routes } from '@angular/router';
-import { CATEGORY_WRITE, QUESTION_WRITE, TAG_WRITE } from './core/admin/admin-access';
+import {
+  CATEGORY_WRITE,
+  QUESTION_WRITE,
+  SUBMISSION_DELETE,
+  TAG_WRITE,
+} from './core/admin/admin-access';
 import { adminGuard, adminMatchGuard, sectionGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
 import {
@@ -88,6 +93,13 @@ export const routes: Routes = [
         data: { [LOOKUP_DATA_KEY]: CATEGORY_LOOKUP },
         loadComponent: () =>
           import('./features/admin/lookup/lookup-page').then((m) => m.LookupPage),
+      },
+      {
+        path: 'submissions',
+        title: 'Submissions | Admin | CodeClash',
+        canActivate: [sectionGuard(SUBMISSION_DELETE)],
+        loadComponent: () =>
+          import('./features/admin/submissions/submissions-page').then((m) => m.SubmissionsPage),
       },
     ],
   },

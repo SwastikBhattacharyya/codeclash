@@ -1,0 +1,122 @@
+@let item = submission();
+<cc-dialog [title]="title()" [wide]="true" [describedBy]="summaryId" (closed)="closed.emit()">
+  <dl [id]="summaryId" class="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">Verdict</dt>
+      <dd><cc-verdict-badge [state]="item.state" /></dd>
+    </div>
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">Language</dt>
+      <dd class="text-ink">{{ languageLabels[item.language] }}</dd>
+    </div>
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">User</dt>
+      <dd>
+        <a
+          [routerLink]="submissionsPath"
+          [queryParams]="{ username: item.username }"
+          class="text-ink underline underline-offset-4"
+          (click)="closed.emit()"
+          >&#64;{{ item.username }}</a
+        >
+      </dd>
+    </div>
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">Question</dt>
+      <dd class="flex flex-wrap gap-x-3 gap-y-1">
+        <a
+          [routerLink]="[questionsPath, item.questionId]"
+          class="break-words text-ink underline underline-offset-4"
+          (click)="closed.emit()"
+          >{{ questionTitle() ?? 'Open question' }}</a
+        >
+        <a
+          [routerLink]="submissionsPath"
+          [queryParams]="{ question_id: item.questionId }"
+          class="text-ink-muted underline underline-offset-4"
+          (click)="closed.emit()"
+          >All submissions</a
+        >
+      </dd>
+    </div>
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">Time · Memory</dt>
+      <dd class="text-ink tabular-nums">
+        {{ formatTime(item.timeTakenMs) }} · {{ formatMemory(item.memoryUsedKb) }}
+      </dd>
+    </div>
+    <div class="flex flex-col gap-0.5">
+      <dt class="text-ink-muted">Submitted</dt>
+      <dd class="text-ink">
+        <time [attr.datetime]="item.createdAt">{{ item.createdAt | date: 'medium' }}</time>
+      </dd>
+    </div>
+    @if (failed()) {
+      <div class="flex flex-col gap-0.5 sm:col-span-2">
+        <dt class="text-ink-muted">Failed test</dt>
+        <dd class="text-ink">
+          @if (failedTestNumber(); as number) {
+            Failed on
+            <a
+              [routerLink]="[questionsPath, item.questionId]"
+              class="underline underline-offset-4"
+              (click)="closed.emit()"
+              >test case #{{ number }}</a
+            >
+          } @else {
+            Failed on a test case
+          }
+        </dd>
+      </div>
+    }
+  </dl>
+
+  @if (failed()) {
+    @switch (failedTestStatus()) {
+      @case ('loaded') {
+        @if (failedTestCase.hasValue()) {
+          <cc-test-result-panel
+            [input]="failedTestCase.value().input"
+            [expected]="failedTestCase.value().output"
+            [actual]="item.actualOutput"
+            [state]="item.state"
+          />
+        }
+      }
+      @case ('loading') {
+        <p class="text-sm text-ink-muted">Loading the failing test…</p>
+      }
+      @case ('hidden') {
+        <p class="text-sm text-ink-muted">
+          You don't have permission to view this hidden test case.
+        </p>
+      }
+      @case ('removed') {
+        <p class="text-sm text-ink-muted">The failing test case is no longer available.</p>
+      }
+      @case ('unknown') {
+        <p class="text-sm text-ink-muted">The failing test case couldn't be loaded.</p>
+      }
+    }
+  }
+
+  <cc-code-view
+    [code]="item.code"
+    [language]="item.language"
+    [label]="languageLabels[item.language]"
+  />
+
+  @if (item.compileOutput !== null) {
+    <cc-compile-output [output]="item.compileOutput" />
+  }
+
+  <div class="flex flex-wrap justify-end gap-3">
+    @if (canDelete()) {
+      <button ccButton variant="secondary" type="button" (click)="deleteRequested.emit(item)">
+        <svg lucideTrash class="size-5"></svg>
+        Delete
+      </button>
+    }
+    <button ccButton type="button" (click)="closed.emit()">Close</button>
+  </div>
+</cc-dialog>
