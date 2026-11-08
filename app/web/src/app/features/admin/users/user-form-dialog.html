@@ -1,0 +1,63 @@
+<cc-dialog [title]="title()" (closed)="close()">
+  <form [formRoot]="userForm" class="flex flex-col gap-5">
+    @if (formError(); as message) {
+      <cc-forbidden-alert [message]="message" [permissions]="missing()" />
+    }
+    <div class="grid gap-5 sm:grid-cols-2">
+      <cc-text-field [formField]="userForm.name" label="Name" autocomplete="off" />
+      <cc-text-field
+        [formField]="userForm.username"
+        label="Username"
+        autocomplete="off"
+        autocapitalize="none"
+        [spellcheck]="false"
+      />
+      @if (!userForm.email().hidden()) {
+        <cc-text-field
+          class="sm:col-span-2"
+          [formField]="userForm.email"
+          label="Email"
+          type="email"
+          autocomplete="off"
+          autocapitalize="none"
+          [spellcheck]="false"
+        />
+      }
+      @if (!userForm.password().hidden()) {
+        <cc-password-field
+          class="sm:col-span-2"
+          [formField]="userForm.password"
+          label="Password"
+          autocomplete="new-password"
+          [rules]="passwordRules"
+        />
+      }
+      @if (!userForm.roleId().hidden()) {
+        <cc-select
+          class="sm:col-span-2"
+          [formField]="userForm.roleId"
+          label="Role"
+          [options]="roleOptions()"
+          [hint]="roleHint()"
+        />
+      }
+      @if (!userForm.verified().hidden()) {
+        <cc-checkbox class="sm:col-span-2" [formField]="userForm.verified" label="Email verified" />
+      }
+    </div>
+    <div class="flex flex-wrap justify-end gap-3">
+      <button
+        ccButton
+        variant="ghost"
+        type="button"
+        [disabled]="userForm().submitting()"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button ccButton type="submit" [loading]="userForm().submitting()">
+        {{ creating() ? 'Create user' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+</cc-dialog>

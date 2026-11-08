@@ -5,6 +5,7 @@ import {
   QUESTION_WRITE,
   SUBMISSION_DELETE,
   TAG_WRITE,
+  USER_WRITE,
 } from './core/admin/admin-access';
 import { adminGuard, adminMatchGuard, sectionGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
@@ -125,6 +126,12 @@ export const routes: Routes = [
         canDeactivate: [contestUnsavedGuard],
         loadComponent: () =>
           import('./features/admin/contests/contest-detail').then((m) => m.ContestDetail),
+      },
+      {
+        path: 'users',
+        title: 'Users | Admin | CodeClash',
+        canActivate: [sectionGuard(USER_WRITE)],
+        loadComponent: () => import('./features/admin/users/users-page').then((m) => m.UsersPage),
       },
     ],
   },

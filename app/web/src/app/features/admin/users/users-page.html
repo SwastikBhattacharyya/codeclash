@@ -1,0 +1,196 @@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <cc-admin-heading [section]="section" />
+  <button
+    #newButton
+    ccButton
+    type="button"
+    class="shrink-0 self-start sm:self-auto"
+    (click)="openCreate()"
+  >
+    <svg lucidePlus class="size-5"></svg>
+    New user
+  </button>
+</div>
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+  <form [formRoot]="searchForm" role="search" class="flex flex-1 items-start gap-3 lg:max-w-xl">
+    <cc-select
+      class="w-36 shrink-0"
+      label="Search in"
+      [options]="searchFieldOptions()"
+      [value]="query().field"
+      (valueChange)="onSearchField($event)"
+    />
+    <cc-text-field
+      class="min-w-0 flex-1"
+      [formField]="searchForm.text"
+      [label]="searchLabel()"
+      autocomplete="off"
+      autocapitalize="none"
+      [spellcheck]="false"
+    />
+  </form>
+  <div class="grid grid-cols-2 gap-3 lg:flex">
+    @if (access.canReadRoles()) {
+      <cc-select
+        class="lg:w-44"
+        label="Role"
+        [options]="roleFilterOptions()"
+        [value]="query().roleId ?? ''"
+        (valueChange)="onRoleFilter($event)"
+      />
+    }
+    <cc-select
+      class="lg:w-40"
+      label="Verified"
+      [options]="verifiedOptions"
+      [value]="verifiedFilter()"
+      (valueChange)="onVerifiedFilter($event)"
+    />
+  </div>
+</div>
+
+@if (users.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Users couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="users.reload()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-6">
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns()"
+    [emptyText]="emptyText()"
+    [loading]="users.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-user>
+      <th
+        scope="row"
+        class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium whitespace-nowrap text-ink sm:px-5"
+      >
+        <span class="inline-flex items-center gap-2">
+          {{ user.name }}
+          @if (access.isSelf(user)) {
+            <span class="rounded-chip bg-accent px-1.5 py-0.5 text-xs font-semibold text-on-accent"
+              >You</span
+            >
+          }
+        </span>
+      </th>
+      <td class="px-4 py-3 whitespace-nowrap text-ink sm:px-5">{{ user.username }}</td>
+      @if (access.canReadEmail()) {
+        <td class="px-4 py-3 text-ink-muted sm:px-5">
+          <span class="block max-w-xs truncate" [title]="user.email ?? ''">{{
+            user.email ?? '—'
+          }}</span>
+        </td>
+      }
+      <td class="px-4 py-3 whitespace-nowrap sm:px-5">
+        @if (user.isVerified) {
+          <span class="rounded-chip bg-success/10 px-2 py-0.5 text-xs font-medium text-success"
+            >Verified</span
+          >
+        } @else {
+          <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs font-medium text-ink-muted"
+            >Unverified</span
+          >
+        }
+      </td>
+      @if (access.canReadRoles()) {
+        <td class="px-4 py-3 whitespace-nowrap sm:px-5">
+          <span class="rounded-chip border border-line px-2 py-0.5 text-xs text-ink">{{
+            roleName(user.roleId)
+          }}</span>
+        </td>
+      }
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="user.createdAt" [title]="user.createdAt | date: 'medium'">{{
+          user.createdAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          @if (access.canWrite(user)) {
+            <button
+              type="button"
+              class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [attr.aria-label]="'Edit @' + user.username"
+              title="Edit"
+              (click)="openEdit(user)"
+            >
+              <svg lucidePencil class="size-4.5"></svg>
+            </button>
+            <button
+              type="button"
+              class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [attr.aria-label]="'Set password for @' + user.username"
+              title="Set password"
+              (click)="openPassword(user)"
+            >
+              <svg lucideKeyRound class="size-4.5"></svg>
+            </button>
+          }
+          @if (access.canViewSubmissions()) {
+            <a
+              class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [routerLink]="submissionsPath"
+              [queryParams]="{ username: user.username }"
+              [attr.aria-label]="'Submissions by @' + user.username"
+              title="Submissions"
+            >
+              <svg lucideListChecks class="size-4.5"></svg>
+            </a>
+          }
+          @if (access.canDelete(user)) {
+            <button
+              type="button"
+              class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+              [attr.aria-label]="'Delete @' + user.username"
+              title="Delete"
+              (click)="openDelete(user)"
+            >
+              <svg lucideTrash class="size-4.5"></svg>
+            </button>
+          }
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownUsers(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (formTarget(); as target) {
+  <cc-user-form-dialog
+    [user]="target.user"
+    [roles]="roleList()"
+    (saved)="onSaved($event)"
+    (gone)="onGone()"
+    (closed)="formTarget.set(null)"
+  />
+}
+
+@if (passwordTarget(); as user) {
+  <cc-user-password-dialog
+    [user]="user"
+    (saved)="onPasswordSaved($event)"
+    (gone)="onGone()"
+    (closed)="passwordTarget.set(null)"
+  />
+}
+
+@if (deleteTarget(); as user) {
+  <cc-user-delete-dialog
+    [user]="user"
+    (deleted)="onDeleted($event)"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}
