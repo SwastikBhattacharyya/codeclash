@@ -1,0 +1,139 @@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <cc-admin-heading [section]="section" />
+  <a #newButton ccButton class="shrink-0 self-start sm:self-auto" [routerLink]="newPath()">
+    <svg lucidePlus class="size-5"></svg>
+    New contest
+  </a>
+</div>
+
+<div class="flex flex-col gap-4 xl:flex-row xl:items-start">
+  <form [formRoot]="searchForm" role="search" class="flex-1 xl:max-w-sm">
+    <cc-text-field
+      [formField]="searchForm.name"
+      label="Search by name"
+      autocomplete="off"
+      [spellcheck]="false"
+    />
+  </form>
+  <div class="grid grid-cols-1 gap-3 sm:grid-cols-3 xl:flex">
+    <cc-select
+      class="xl:w-36"
+      label="Status"
+      [options]="statusOptions"
+      [value]="query().status ?? ''"
+      (valueChange)="onStatusFilter($event)"
+    />
+    <cc-datetime-field
+      class="xl:w-56"
+      label="Starts from"
+      [showZone]="false"
+      [value]="liveFromInput()"
+      (valueChange)="onRangeFilter('starts_from', $event)"
+      (touch)="onRangeBlur('starts_from')"
+    />
+    <cc-datetime-field
+      class="xl:w-56"
+      label="Starts until"
+      [showZone]="false"
+      [value]="liveToInput()"
+      (valueChange)="onRangeFilter('starts_to', $event)"
+      (touch)="onRangeBlur('starts_to')"
+    />
+  </div>
+</div>
+
+@if (contests.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Contests couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="refresh()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-6">
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns"
+    [emptyText]="emptyText()"
+    [loading]="contests.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-contest>
+      <th scope="row" class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium sm:px-5">
+        <a
+          [routerLink]="detailPath(contest)"
+          class="block max-w-[40vw] truncate text-ink underline-offset-4 hover:underline sm:max-w-64"
+          [title]="contest.name"
+          >{{ contest.name }}</a
+        >
+      </th>
+      <td class="px-4 py-3 sm:px-5">
+        <cc-contest-status-badge [contest]="contest" />
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="contest.liveAt" [title]="contest.liveAt | date: 'medium'">{{
+          contest.liveAt | date: 'd MMM y, HH:mm'
+        }}</time>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="contest.endAt" [title]="contest.endAt | date: 'medium'">{{
+          contest.endAt | date: 'd MMM y, HH:mm'
+        }}</time>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="contest.updatedAt" [title]="contest.updatedAt | date: 'medium'">{{
+          contest.updatedAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          <a
+            class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [routerLink]="detailPath(contest)"
+            [attr.aria-label]="'Edit ' + contest.name"
+            title="Edit"
+          >
+            <svg lucidePencil class="size-4.5"></svg>
+          </a>
+          <a
+            class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+            [routerLink]="[contestsPath, contest.id]"
+            [attr.aria-label]="'View ' + contest.name + ' on the site'"
+            title="View on site"
+          >
+            <svg lucideEye class="size-4.5"></svg>
+          </a>
+          @if (!started(contest)) {
+            <button
+              type="button"
+              class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+              [attr.aria-label]="'Delete ' + contest.name"
+              title="Delete"
+              (click)="openDelete(contest)"
+            >
+              <svg lucideTrash class="size-4.5"></svg>
+            </button>
+          } @else {
+            <span class="inline-block size-10" aria-hidden="true"></span>
+          }
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownContests(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (deleteTarget(); as contest) {
+  <cc-contest-delete-dialog
+    [contest]="contest"
+    (deleted)="onDeleted($event)"
+    (gone)="onGone()"
+    (blocked)="onDeleteBlocked()"
+    (closed)="deleteTarget.set(null)"
+  />
+}

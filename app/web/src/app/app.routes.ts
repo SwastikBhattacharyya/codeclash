@@ -1,12 +1,14 @@
 import type { Routes } from '@angular/router';
 import {
   CATEGORY_WRITE,
+  CONTEST_WRITE,
   QUESTION_WRITE,
   SUBMISSION_DELETE,
   TAG_WRITE,
 } from './core/admin/admin-access';
 import { adminGuard, adminMatchGuard, sectionGuard } from './core/admin/admin-guards';
 import { authGuard, guestGuard } from './core/auth/auth-guards';
+import { contestUnsavedGuard } from './features/admin/contests/contest-unsaved.guard';
 import {
   CATEGORY_LOOKUP,
   LOOKUP_DATA_KEY,
@@ -100,6 +102,29 @@ export const routes: Routes = [
         canActivate: [sectionGuard(SUBMISSION_DELETE)],
         loadComponent: () =>
           import('./features/admin/submissions/submissions-page').then((m) => m.SubmissionsPage),
+      },
+      {
+        path: 'contests',
+        title: 'Contests | Admin | CodeClash',
+        canActivate: [sectionGuard(CONTEST_WRITE)],
+        loadComponent: () =>
+          import('./features/admin/contests/contests-page').then((m) => m.ContestsPage),
+      },
+      {
+        path: 'contests/new',
+        title: 'New contest | Admin | CodeClash',
+        canActivate: [sectionGuard(CONTEST_WRITE)],
+        canDeactivate: [contestUnsavedGuard],
+        loadComponent: () =>
+          import('./features/admin/contests/contest-detail').then((m) => m.ContestDetail),
+      },
+      {
+        path: 'contests/:id',
+        title: 'Contest | Admin | CodeClash',
+        canActivate: [sectionGuard(CONTEST_WRITE)],
+        canDeactivate: [contestUnsavedGuard],
+        loadComponent: () =>
+          import('./features/admin/contests/contest-detail').then((m) => m.ContestDetail),
       },
     ],
   },

@@ -1,0 +1,199 @@
+<a
+  [routerLink]="section.path"
+  class="inline-flex items-center gap-1.5 self-start text-sm text-ink-muted transition-colors hover:text-ink"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Contests
+</a>
+
+@if (ready()) {
+  @let contest = loadedContest();
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex min-w-0 flex-col gap-2">
+      <h1 class="flex flex-wrap items-center gap-3 text-3xl break-words text-ink sm:text-4xl">
+        <span class="min-w-0">{{ title() }}</span>
+        @if (contest) {
+          <cc-contest-status-badge [contest]="contest" [large]="true" />
+        }
+      </h1>
+      @if (contest) {
+        <p class="text-sm text-ink-muted">
+          Updated
+          <time [attr.datetime]="contest.updatedAt" [title]="contest.updatedAt | date: 'medium'">{{
+            contest.updatedAt | date: 'd MMM y'
+          }}</time>
+        </p>
+      }
+    </div>
+    @if (contest) {
+      <div class="flex flex-wrap gap-3">
+        <a ccButton variant="secondary" [routerLink]="[contestsPath, contest.id]">
+          <svg lucideEye class="size-5"></svg>
+          View on site
+        </a>
+        @if (!locked()) {
+          <button ccButton variant="secondary" type="button" (click)="deleteOpen.set(true)">
+            <svg lucideTrash class="size-5"></svg>
+            Delete
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  <form [formRoot]="contestForm" class="flex flex-col gap-6">
+    @if (formError(); as message) {
+      <cc-forbidden-alert [message]="message" [permissions]="missing()" />
+    }
+    @if (locked()) {
+      <cc-alert>
+        This contest has started, so its start time and questions can't change. You can still edit
+        the name, description and end time.
+      </cc-alert>
+    }
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div class="flex min-w-0 flex-col gap-5">
+        <cc-text-field [formField]="contestForm.name" label="Name" autocomplete="off" />
+        <cc-markdown-editor
+          [formField]="contestForm.description"
+          label="Description"
+          [hint]="descriptionHint"
+          [limit]="descriptionMaxSize"
+        />
+      </div>
+
+      <div class="flex min-w-0 flex-col gap-5">
+        <cc-datetime-field [formField]="contestForm.liveAt" label="Starts" />
+        <cc-datetime-field [formField]="contestForm.endAt" label="Ends" [showZone]="false" />
+        @if (duration(); as length) {
+          <p class="text-sm text-ink-muted">Lasts {{ length }}</p>
+        }
+      </div>
+    </div>
+
+    <section aria-labelledby="contest-questions-heading" class="flex flex-col gap-4">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div class="flex flex-col gap-1">
+          <h2 id="contest-questions-heading" class="text-xl text-ink">Questions</h2>
+          @if (questionsVisible()) {
+            <p class="text-sm text-ink-muted tabular-nums">
+              {{ contestForm.questions().value().length }}
+              {{ contestForm.questions().value().length === 1 ? 'question' : 'questions' }}
+            </p>
+          }
+        </div>
+        @if (questionsEditable()) {
+          <button ccButton variant="secondary" type="button" (click)="pickerOpen.set(true)">
+            <svg lucidePlus class="size-5"></svg>
+            Add questions
+          </button>
+        }
+      </div>
+
+      @if (!questionsVisible()) {
+        <cc-forbidden-alert
+          message="You can't see this contest's questions until it starts, so they can't be changed here."
+          [permissions]="readQuestionsPermission"
+        />
+      } @else if (contestForm.questions().value().length === 0) {
+        <cc-alert>No questions yet — add some before it goes live.</cc-alert>
+      } @else {
+        <ul class="flex flex-col divide-y divide-line rounded-panel border border-line bg-raised">
+          @for (row of contestForm.questions; track row().value().id) {
+            @let id = row().value().id;
+            <li
+              class="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-start sm:gap-4 sm:px-5"
+              [class]="isFlagged(id) ? 'bg-danger/8' : ''"
+            >
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5 sm:pt-8">
+                <span
+                  class="truncate font-medium text-ink"
+                  [class.text-danger]="isFlagged(id)"
+                  [title]="questionTitle(id)"
+                  >{{ questionTitle(id) }}</span
+                >
+                <span class="truncate font-mono text-xs text-ink-muted">{{ id }}</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <cc-text-field
+                  class="w-32"
+                  [formField]="row.points"
+                  label="Points"
+                  [hint]="pointsHint"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  [spellcheck]="false"
+                />
+                @if (questionsEditable()) {
+                  <button
+                    type="button"
+                    class="mt-7 inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+                    [attr.aria-label]="'Remove ' + questionTitle(id)"
+                    title="Remove"
+                    (click)="removeQuestion(id)"
+                  >
+                    <svg lucideX class="size-4.5"></svg>
+                  </button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <div
+      class="-mx-4 flex flex-wrap justify-end gap-3 border-t border-line bg-surface/95 px-4 py-4 backdrop-blur sm:sticky sm:bottom-0 sm:z-20 sm:mx-0 sm:px-0"
+    >
+      @if (!creating()) {
+        <button
+          ccButton
+          variant="ghost"
+          type="button"
+          [disabled]="!dirty() || contestForm().submitting()"
+          (click)="discard()"
+        >
+          Discard changes
+        </button>
+      }
+      <button
+        ccButton
+        type="submit"
+        [loading]="contestForm().submitting()"
+        [disabled]="!creating() && !dirty()"
+      >
+        {{ creating() ? 'Create contest' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+
+  @if (pickerOpen()) {
+    <cc-contest-question-picker
+      [excluded]="addedIds()"
+      (added)="onPicked($event)"
+      (closed)="pickerOpen.set(false)"
+    />
+  }
+
+  @if (deleteOpen() && contest) {
+    <cc-contest-delete-dialog
+      [contest]="contest"
+      (deleted)="onDeleted($event)"
+      (gone)="onGone()"
+      (closed)="deleteOpen.set(false)"
+    />
+  }
+} @else if (loadError(); as message) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>{{ message }}</span>
+      <button ccButton variant="secondary" type="button" (click)="contest.reload()">Retry</button>
+    </div>
+  </cc-alert>
+} @else {
+  <div class="flex items-center gap-3 text-ink-muted" role="status">
+    <cc-spinner class="size-5" />
+    Loading contest
+  </div>
+}

@@ -1,0 +1,136 @@
+<cc-dialog
+  title="Add questions"
+  [describedBy]="descriptionId"
+  [wide]="true"
+  (closed)="closed.emit()"
+>
+  <p [id]="descriptionId" class="text-sm text-ink-muted">
+    Pick questions to add to this contest. Each one starts with the default points, which you can
+    change afterwards.
+  </p>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-start">
+    <cc-text-field
+      class="flex-1"
+      label="Search by title"
+      autocomplete="off"
+      [spellcheck]="false"
+      [(value)]="searchText"
+    />
+    @if (canReadPrivate()) {
+      <cc-select
+        class="sm:w-40"
+        label="Status"
+        [options]="visibilityOptions"
+        [value]="visibility()"
+        (valueChange)="onVisibility($event)"
+      />
+    }
+  </div>
+
+  @if (questions.error()) {
+    <cc-alert tone="error">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span>Questions couldn't be loaded.</span>
+        <button ccButton variant="secondary" type="button" (click)="questions.reload()">
+          Retry
+        </button>
+      </div>
+    </cc-alert>
+  }
+
+  <div class="relative min-h-40 overflow-hidden rounded-control border border-line">
+    @if (rows().length === 0) {
+      @if (!questions.error()) {
+        <p class="px-4 py-10 text-center text-sm text-ink-muted">
+          @if (questions.isLoading()) {
+            Loading questions
+          } @else {
+            No questions match
+          }
+        </p>
+      }
+    } @else {
+      <ul
+        #list
+        [attr.aria-busy]="questions.isLoading() || null"
+        class="max-h-96 divide-y divide-line overflow-y-auto"
+        aria-label="Questions"
+      >
+        @for (question of rows(); track question.id) {
+          @let alreadyAdded = isAdded(question);
+          <li>
+            <label
+              class="flex min-h-12 cursor-pointer items-center gap-3 px-4 py-2 transition-colors hover:bg-ink/4 has-disabled:cursor-default has-disabled:hover:bg-transparent"
+            >
+              <input
+                type="checkbox"
+                [checked]="isSelected(question)"
+                [disabled]="alreadyAdded"
+                (change)="toggle(question, $event)"
+                class="size-5 shrink-0 cursor-pointer rounded-chip accent-accent disabled:cursor-default"
+              />
+              <span class="min-w-0 flex-1 truncate text-ink" [title]="question.title">{{
+                question.title
+              }}</span>
+              @if (alreadyAdded) {
+                <span class="text-xs text-ink-muted">Added</span>
+              }
+              @if (question.isVisible) {
+                <span
+                  class="rounded-chip bg-success/10 px-2 py-0.5 text-xs font-medium text-success"
+                  >Published</span
+                >
+              } @else {
+                <span class="rounded-chip bg-ink/6 px-2 py-0.5 text-xs font-medium text-ink-muted"
+                  >Draft</span
+                >
+              }
+            </label>
+          </li>
+        }
+      </ul>
+    }
+    @if (questions.isLoading() && rows().length > 0) {
+      <div class="absolute inset-0 flex items-center justify-center bg-raised/60" role="status">
+        <cc-spinner class="size-6" />
+        <span class="sr-only">Loading questions</span>
+      </div>
+    }
+  </div>
+
+  @if (shownQuestions(); as current) {
+    @if (current.page > firstPage || current.hasNext) {
+      <nav aria-label="Question pages" class="flex items-center justify-between gap-4">
+        <button
+          ccButton
+          variant="secondary"
+          type="button"
+          [disabled]="current.page <= firstPage || questions.isLoading()"
+          (click)="goToPage(current.page - 1)"
+        >
+          Previous
+        </button>
+        <p class="text-sm text-ink-muted tabular-nums" aria-live="polite">
+          Page {{ current.page }}
+        </p>
+        <button
+          ccButton
+          variant="secondary"
+          type="button"
+          [disabled]="!current.hasNext || questions.isLoading()"
+          (click)="goToPage(current.page + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+
+  <div class="flex flex-wrap justify-end gap-3">
+    <button ccButton variant="ghost" type="button" (click)="closed.emit()">Cancel</button>
+    <button ccButton type="button" [disabled]="selectedCount() === 0" (click)="confirm()">
+      {{ confirmLabel() }}
+    </button>
+  </div>
+</cc-dialog>
