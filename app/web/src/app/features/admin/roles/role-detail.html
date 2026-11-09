@@ -1,0 +1,198 @@
+<a
+  [routerLink]="section.path"
+  class="inline-flex items-center gap-1.5 self-start text-sm text-ink-muted transition-colors hover:text-ink"
+>
+  <svg lucideArrowLeft class="size-4"></svg>
+  Roles
+</a>
+
+@if (ready()) {
+  @let role = loadedRole();
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-2">
+      <h1 class="flex flex-wrap items-center gap-3 text-3xl text-ink sm:text-4xl">
+        <span class="break-all" [class.font-mono]="role !== null">{{ title() }}</span>
+        @if (role?.isDefault) {
+          <span
+            class="inline-flex items-center gap-1 rounded-chip bg-ink/6 px-2 py-0.5 text-sm font-medium text-ink"
+          >
+            <svg lucideLock class="size-4"></svg>
+            Default
+          </span>
+        }
+      </h1>
+      @if (role) {
+        <p class="text-sm text-ink-muted">
+          Created
+          <time [attr.datetime]="role.createdAt" [title]="role.createdAt | date: 'medium'">{{
+            role.createdAt | date: 'd MMM y'
+          }}</time>
+        </p>
+      }
+    </div>
+    @if (role && access.canWrite()) {
+      <div class="flex flex-wrap gap-3">
+        <a
+          ccButton
+          variant="secondary"
+          [routerLink]="newPath()"
+          [queryParams]="duplicateParams(role)"
+        >
+          <svg lucideCopy class="size-5"></svg>
+          Duplicate
+        </a>
+        @if (editable()) {
+          <button ccButton variant="secondary" type="button" (click)="deleteOpen.set(true)">
+            <svg lucideTrash class="size-5"></svg>
+            Delete
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (sourceError(); as message) {
+    <cc-alert tone="error">{{ message }}</cc-alert>
+  }
+  @if (role?.isDefault) {
+    <cc-alert>Default roles are managed in the service config and can't be changed here.</cc-alert>
+  }
+  @if (own() && editable()) {
+    <cc-alert
+      >This is your role. Removing permissions can lock you out of parts of the admin.</cc-alert
+    >
+  }
+
+  @if (editable()) {
+    <form [formRoot]="roleForm" class="flex flex-col gap-6">
+      @if (formError(); as message) {
+        <cc-forbidden-alert [message]="message" [permissions]="missing()" />
+      }
+      <div class="grid max-w-2xl gap-5">
+        <cc-text-field
+          [formField]="roleForm.name"
+          label="Name"
+          [hint]="nameHint"
+          autocomplete="off"
+          autocapitalize="none"
+          [spellcheck]="false"
+        />
+        <cc-text-area
+          [formField]="roleForm.description"
+          label="Description"
+          [rows]="3"
+          [limit]="descriptionMaxSize"
+        />
+      </div>
+
+      <section class="flex flex-col gap-4" aria-labelledby="role-permissions-heading">
+        <h2 id="role-permissions-heading" class="text-xl text-ink">Permissions</h2>
+        @if (!access.canReadPermissions()) {
+          <cc-alert>You need auth:permission:read to choose permissions.</cc-alert>
+        } @else if (permissions.error()) {
+          <cc-alert tone="error">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <span>Permissions couldn't be loaded.</span>
+              <button ccButton variant="secondary" type="button" (click)="permissions.reload()">
+                Retry
+              </button>
+            </div>
+          </cc-alert>
+        } @else if (!permissions.hasValue()) {
+          <div class="flex items-center gap-3 text-ink-muted" role="status">
+            <cc-spinner class="size-5" />
+            Loading permissions
+          </div>
+        } @else {
+          <cc-permission-picker
+            [permissions]="permissionList()"
+            [(selected)]="selected"
+            [disabled]="roleForm().submitting()"
+          />
+        }
+      </section>
+
+      <div
+        class="-mx-4 flex flex-wrap justify-end gap-3 border-t border-line bg-surface/95 px-4 py-4 backdrop-blur sm:sticky sm:bottom-0 sm:z-20 sm:mx-0 sm:px-0"
+      >
+        @if (!creating()) {
+          <button
+            ccButton
+            variant="ghost"
+            type="button"
+            [disabled]="!dirty() || roleForm().submitting()"
+            (click)="discard()"
+          >
+            Discard changes
+          </button>
+        }
+        <button
+          ccButton
+          type="submit"
+          [loading]="roleForm().submitting()"
+          [disabled]="!creating() && !dirty()"
+        >
+          {{ creating() ? 'Create role' : 'Save changes' }}
+        </button>
+      </div>
+    </form>
+  } @else if (role) {
+    <dl class="grid max-w-2xl gap-1">
+      <dt class="text-sm font-medium text-ink">Description</dt>
+      <dd class="text-ink-muted">{{ role.description }}</dd>
+    </dl>
+    <section class="flex flex-col gap-4" aria-labelledby="role-permissions-heading">
+      <h2 id="role-permissions-heading" class="text-xl text-ink">
+        Permissions
+        <span class="text-base text-ink-muted tabular-nums">({{ role.permissions.length }})</span>
+      </h2>
+      @if (!access.canReadPermissions()) {
+        <p class="text-ink-muted">
+          This role has {{ role.permissions.length }} permissions. You need auth:permission:read to
+          see their names.
+        </p>
+      } @else if (permissions.error()) {
+        <cc-alert tone="error">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <span>Permissions couldn't be loaded.</span>
+            <button ccButton variant="secondary" type="button" (click)="permissions.reload()">
+              Retry
+            </button>
+          </div>
+        </cc-alert>
+      } @else if (!permissions.hasValue()) {
+        <div class="flex items-center gap-3 text-ink-muted" role="status">
+          <cc-spinner class="size-5" />
+          Loading permissions
+        </div>
+      } @else {
+        <cc-permission-picker
+          [permissions]="permissionList()"
+          [selected]="role.permissions"
+          [readonly]="true"
+        />
+      }
+    </section>
+  }
+
+  @if (deleteOpen() && role) {
+    <cc-role-delete-dialog
+      [role]="role"
+      (deleted)="onDeleted($event)"
+      (gone)="onGone()"
+      (closed)="deleteOpen.set(false)"
+    />
+  }
+} @else if (loadError(); as message) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>{{ message }}</span>
+      <button ccButton variant="secondary" type="button" (click)="role.reload()">Retry</button>
+    </div>
+  </cc-alert>
+} @else {
+  <div class="flex items-center gap-3 text-ink-muted" role="status">
+    <cc-spinner class="size-5" />
+    Loading role
+  </div>
+}

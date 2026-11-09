@@ -1,0 +1,148 @@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+  <div #heading tabindex="-1" class="outline-none">
+    <cc-admin-heading [section]="section" />
+  </div>
+  @if (access.canWrite()) {
+    <a ccButton class="shrink-0 self-start sm:self-auto" [routerLink]="newPath()">
+      <svg lucidePlus class="size-5"></svg>
+      New role
+    </a>
+  }
+</div>
+
+<div class="flex flex-col gap-4 sm:flex-row sm:items-start">
+  <form [formRoot]="searchForm" role="search" class="flex-1 sm:max-w-md">
+    <cc-text-field
+      [formField]="searchForm.name"
+      label="Search by name"
+      autocomplete="off"
+      autocapitalize="none"
+      [spellcheck]="false"
+    />
+  </form>
+  <cc-select
+    class="sm:w-44"
+    label="Type"
+    [options]="typeOptions"
+    [value]="query().type ?? ''"
+    (valueChange)="onTypeFilter($event)"
+  />
+</div>
+
+@if (roles.error()) {
+  <cc-alert tone="error">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <span>Roles couldn't be loaded.</span>
+      <button ccButton variant="secondary" type="button" (click)="roles.reload()">Retry</button>
+    </div>
+  </cc-alert>
+}
+
+<div class="flex flex-col gap-6">
+  <cc-data-table
+    [caption]="section.label"
+    [columns]="columns"
+    [emptyText]="emptyText()"
+    [loading]="roles.isLoading()"
+    [sort]="sort()"
+    (sortChange)="onSort($event)"
+  >
+    <ng-template [ccTableRow]="rows()" let-role>
+      <th
+        scope="row"
+        class="sticky left-0 z-10 bg-raised px-4 py-3 font-medium whitespace-nowrap sm:px-5"
+      >
+        <a
+          [routerLink]="detailPath(role)"
+          class="font-mono text-ink underline-offset-4 hover:underline"
+          >{{ role.name }}</a
+        >
+      </th>
+      <td class="px-4 py-3 text-ink-muted sm:px-5">
+        <span class="block max-w-xs truncate" [title]="role.description">{{
+          role.description
+        }}</span>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        {{ role.permissions.length }}
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap sm:px-5">
+        @if (role.isDefault) {
+          <span
+            class="inline-flex items-center gap-1 rounded-chip bg-ink/6 px-2 py-0.5 text-xs font-medium text-ink"
+          >
+            <svg lucideLock class="size-3.5"></svg>
+            Default
+          </span>
+        } @else {
+          <span class="rounded-chip border border-line px-2 py-0.5 text-xs text-ink-muted"
+            >Custom</span
+          >
+        }
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-ink-muted tabular-nums sm:px-5">
+        <time [attr.datetime]="role.createdAt" [title]="role.createdAt | date: 'medium'">{{
+          role.createdAt | date: 'd MMM y'
+        }}</time>
+      </td>
+      <td class="bg-raised px-2 py-1.5 sm:sticky sm:right-0 sm:z-10 sm:px-3">
+        <div class="flex justify-end gap-1">
+          @if (access.canEdit(role)) {
+            <a
+              class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [routerLink]="detailPath(role)"
+              [attr.aria-label]="'Edit ' + role.name"
+              title="Edit"
+            >
+              <svg lucidePencil class="size-4.5"></svg>
+            </a>
+          } @else {
+            <a
+              class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [routerLink]="detailPath(role)"
+              [attr.aria-label]="'View ' + role.name"
+              title="View"
+            >
+              <svg lucideEye class="size-4.5"></svg>
+            </a>
+          }
+          @if (access.canWrite()) {
+            <a
+              class="inline-flex size-10 items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+              [routerLink]="newPath()"
+              [queryParams]="{ from: role.id }"
+              [attr.aria-label]="'Duplicate ' + role.name"
+              title="Duplicate"
+            >
+              <svg lucideCopy class="size-4.5"></svg>
+            </a>
+          }
+          @if (access.canEdit(role)) {
+            <button
+              type="button"
+              class="inline-flex size-10 cursor-pointer items-center justify-center rounded-control text-ink-muted transition-colors hover:bg-danger/8 hover:text-danger"
+              [attr.aria-label]="'Delete ' + role.name"
+              title="Delete"
+              (click)="openDelete(role)"
+            >
+              <svg lucideTrash class="size-4.5"></svg>
+            </button>
+          }
+        </div>
+      </td>
+    </ng-template>
+  </cc-data-table>
+
+  @if (shownRoles(); as page) {
+    <cc-pager [page]="page.page" [hasNext]="page.hasNext" />
+  }
+</div>
+
+@if (deleteTarget(); as role) {
+  <cc-role-delete-dialog
+    [role]="role"
+    (deleted)="onDeleted($event)"
+    (gone)="onGone()"
+    (closed)="deleteTarget.set(null)"
+  />
+}

@@ -3,6 +3,8 @@ import {
   CATEGORY_WRITE,
   CONTEST_WRITE,
   QUESTION_WRITE,
+  ROLE_READ,
+  ROLE_WRITE,
   SUBMISSION_DELETE,
   TAG_WRITE,
   USER_WRITE,
@@ -16,6 +18,7 @@ import {
   TAG_LOOKUP,
 } from './features/admin/lookup/lookup-config';
 import { questionUnsavedGuard } from './features/admin/questions/question-unsaved.guard';
+import { roleUnsavedGuard } from './features/admin/roles/role-unsaved.guard';
 import { AppLayout, FULL_WIDTH_DATA_KEY } from './layouts/app-layout';
 import { AuthLayout } from './layouts/auth-layout';
 
@@ -132,6 +135,27 @@ export const routes: Routes = [
         title: 'Users | Admin | CodeClash',
         canActivate: [sectionGuard(USER_WRITE)],
         loadComponent: () => import('./features/admin/users/users-page').then((m) => m.UsersPage),
+      },
+      {
+        path: 'roles',
+        title: 'Roles | Admin | CodeClash',
+        canActivate: [sectionGuard(ROLE_READ)],
+        loadComponent: () => import('./features/admin/roles/roles-page').then((m) => m.RolesPage),
+      },
+      {
+        path: 'roles/new',
+        title: 'New role | Admin | CodeClash',
+        runGuardsAndResolvers: 'paramsOrQueryParamsChange',
+        canActivate: [sectionGuard(ROLE_WRITE)],
+        canDeactivate: [roleUnsavedGuard],
+        loadComponent: () => import('./features/admin/roles/role-detail').then((m) => m.RoleDetail),
+      },
+      {
+        path: 'roles/:id',
+        title: 'Role | Admin | CodeClash',
+        canActivate: [sectionGuard(ROLE_READ)],
+        canDeactivate: [roleUnsavedGuard],
+        loadComponent: () => import('./features/admin/roles/role-detail').then((m) => m.RoleDetail),
       },
     ],
   },
