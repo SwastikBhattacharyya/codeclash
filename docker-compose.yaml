@@ -88,6 +88,30 @@ services:
       retries: 5
       start_period: 30s
 
+  pgadmin:
+    image: dpage/pgadmin4:9.19.0
+    container_name: ${COMPOSE_PROJECT_NAME}_pgadmin
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/compose-entrypoint.sh"]
+    environment:
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_DEFAULT_EMAIL: dev@codeclash.dev
+      PGADMIN_DEFAULT_PASSWORD: codeclash
+      PGADMIN_DISABLE_POSTFIX: "True"
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+      PGADMIN_LISTEN_PORT: "8080"
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_DATABASES: ${DB_DATABASES}
+    ports:
+      - "127.0.0.1:${PGADMIN_PORT}:8080"
+    volumes:
+      - ./docker/pgadmin/compose-entrypoint.sh:/compose-entrypoint.sh:ro
+    depends_on:
+      db:
+        condition: service_healthy
+
 networks:
   codeclash:
     name: ${COMPOSE_PROJECT_NAME}_network
