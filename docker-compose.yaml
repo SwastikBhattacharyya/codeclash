@@ -112,6 +112,22 @@ services:
       db:
         condition: service_healthy
 
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:v1.5.0
+    container_name: ${COMPOSE_PROJECT_NAME}_kafka_ui
+    restart: unless-stopped
+    networks:
+      - codeclash
+    environment:
+      KAFKA_CLUSTERS_0_NAME: codeclash
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: redpanda:29092
+      DYNAMIC_CONFIG_ENABLED: "false"
+    ports:
+      - "127.0.0.1:${KAFKA_UI_PORT}:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+
 networks:
   codeclash:
     name: ${COMPOSE_PROJECT_NAME}_network
