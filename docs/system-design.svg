@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 970" width="1500" height="970"
+     font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <style>
+    .txt { fill: #3a3a3a; }
+    .muted { fill: #666666; }
+    .title { font-weight: 700; letter-spacing: 0.5px; }
+    .note { font-style: italic; font-weight: 600; fill: #555555; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Menlo, Consolas, monospace; }
+    .client { fill: #ececec; }
+    .client-line { fill: none; stroke: #9a9a9a; stroke-width: 3; }
+    .client-dot { fill: #9a9a9a; }
+    .gateway { fill: #c8f7d0; }
+    .gateway-back { fill: #a9dcb2; }
+    .service { fill: #d6e0fb; }
+    .pipe { fill: #fde7cc; }
+    .pipe-cap { fill: #f6d2a6; }
+    .db { fill: #e3e3e3; }
+    .db-top { fill: #efefef; stroke: #d0d0d0; stroke-width: 1.5; }
+    .line { fill: none; stroke: #555555; stroke-width: 2.5; }
+    .session { fill: none; stroke: #555555; stroke-width: 2; stroke-dasharray: 6 5; }
+    .outbox { fill: none; stroke: #e0912f; stroke-width: 2.5; }
+    .consume { fill: none; stroke: #4a6fd1; stroke-width: 2.5; }
+    .head-line { fill: #555555; }
+    .head-outbox { fill: #e0912f; }
+    .head-consume { fill: #4a6fd1; }
+    .slot { fill: #b9c8f5; }
+    .sandbox { fill: #fcd9dc; }
+    .sandbox-back { fill: #f3c0c5; }
+    @media (prefers-color-scheme: dark) {
+    .txt { fill: #e6e6e6; }
+    .muted { fill: #b4b4b4; }
+    .note { fill: #c4c4c4; }
+    .client { fill: #3a3a3a; }
+    .client-line { stroke: #9a9a9a; }
+    .client-dot { fill: #9a9a9a; }
+    .gateway { fill: #1f5a34; }
+    .gateway-back { fill: #163f25; }
+    .service { fill: #2b3760; }
+    .pipe { fill: #5c4122; }
+    .pipe-cap { fill: #77552d; }
+    .db { fill: #3d3d3d; }
+    .db-top { fill: #4b4b4b; stroke: #5a5a5a; }
+    .line { stroke: #bdbdbd; }
+    .session { stroke: #bdbdbd; }
+    .outbox { stroke: #f0a54a; }
+    .consume { stroke: #7e9cf0; }
+    .head-line { fill: #bdbdbd; }
+    .head-outbox { fill: #f0a54a; }
+    .head-consume { fill: #7e9cf0; }
+    .slot { fill: #4a5a8f; }
+    .sandbox { fill: #5c2b33; }
+    .sandbox-back { fill: #47222a; }
+    }
+  </style>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+            markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="head-line" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="arrow-small" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10"
+            markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="head-line" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="arrow-outbox" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11"
+            markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="head-outbox" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+    <marker id="arrow-consume" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="11"
+            markerHeight="11" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="head-consume" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+
+  <g>
+    <rect class="client" x="70" y="513" width="120" height="84" rx="6"/>
+    <rect class="client-line" x="86" y="527" width="88" height="56" rx="3"/>
+    <line class="client-line" x1="86" y1="541" x2="174" y2="541"/>
+    <circle class="client-dot" cx="95" cy="534" r="2.5"/>
+    <circle class="client-dot" cx="104" cy="534" r="2.5"/>
+    <circle class="client-dot" cx="113" cy="534" r="2.5"/>
+    <text class="txt title" x="130" y="629" font-size="18" text-anchor="middle">CLIENT</text>
+  </g>
+  <path class="line" d="M196,555 H268" marker-end="url(#arrow-small)"/>
+
+  <g>
+    <rect class="gateway-back" x="276" y="176" width="130" height="730"/>
+    <rect class="gateway" x="290" y="190" width="130" height="730"/>
+    <text class="txt title" x="355" y="565" font-size="21" text-anchor="middle">GATEWAY</text>
+    <text class="muted" x="355" y="589" font-size="12" text-anchor="middle">single HTTP</text>
+    <text class="muted" x="355" y="605" font-size="12" text-anchor="middle">entry point</text>
+  </g>
+
+  <g>
+    <rect class="pipe" x="500" y="50" width="940" height="100" rx="50"/>
+    <ellipse class="pipe-cap" cx="1410" cy="100" rx="26" ry="44"/>
+    <text class="txt title" x="560" y="108" font-size="22">REDPANDA</text>
+    <g class="txt mono" font-size="14">
+      <text x="730" y="92">auth.user.cdc</text>
+      <text x="940" y="92">problem.question.cdc</text>
+      <text x="1150" y="92">problem.test-case.cdc</text>
+      <text x="730" y="122">problem.submission.cdc</text>
+      <text x="940" y="122">runner.submission.state</text>
+      <text x="1150" y="122">contest.contest.cdc</text>
+    </g>
+  </g>
+
+  <g>
+    <rect class="service" x="520" y="200" width="260" height="80"/>
+    <text class="txt title" x="650" y="236" font-size="17" text-anchor="middle">PROBLEM SERVICE
+    </text>
+    <text class="muted" x="650" y="258" font-size="12" text-anchor="middle">questions · test cases ·
+      submissions
+    </text>
+
+    <rect class="service" x="520" y="330" width="260" height="80"/>
+    <text class="txt title" x="650" y="366" font-size="17" text-anchor="middle">AUTH SERVICE</text>
+    <text class="muted" x="650" y="388" font-size="12" text-anchor="middle">users · roles ·
+      permissions · sessions
+    </text>
+
+    <rect class="service" x="520" y="460" width="260" height="80"/>
+    <text class="txt title" x="650" y="496" font-size="17" text-anchor="middle">CONTEST SERVICE
+    </text>
+    <text class="muted" x="650" y="518" font-size="12" text-anchor="middle">contests · registrations
+      · leaderboards
+    </text>
+
+    <rect class="service" x="520" y="590" width="260" height="80"/>
+    <text class="txt title" x="650" y="626" font-size="17" text-anchor="middle">RUNNER SERVICE
+    </text>
+    <text class="muted" x="650" y="648" font-size="12" text-anchor="middle">4 workers judge
+      submissions
+    </text>
+
+    <rect class="service" x="520" y="840" width="260" height="80"/>
+    <text class="txt title" x="650" y="876" font-size="17" text-anchor="middle">NOTIFICATION
+      SERVICE
+    </text>
+    <text class="muted" x="650" y="898" font-size="12" text-anchor="middle">verification mail</text>
+  </g>
+
+  <g>
+    <rect class="db" x="540" y="714" width="220" height="76" rx="10"/>
+    <text class="txt title" x="650" y="734" font-size="13" text-anchor="middle">JOB QUEUE</text>
+    <rect class="slot" x="554" y="746" width="32" height="30" rx="3"/>
+    <rect class="slot" x="594" y="746" width="32" height="30" rx="3"/>
+    <rect class="slot" x="634" y="746" width="32" height="30" rx="3"/>
+    <rect class="slot" x="674" y="746" width="32" height="30" rx="3"/>
+    <rect class="slot" x="714" y="746" width="32" height="30" rx="3"/>
+    <text class="muted" x="650" y="808" font-size="11" text-anchor="middle">submissions table in
+      runner db · skip locked
+    </text>
+  </g>
+
+  <g>
+    <rect class="sandbox-back" x="974" y="624" width="180" height="140"/>
+    <rect class="sandbox-back" x="982" y="632" width="180" height="140"/>
+    <rect class="sandbox" x="990" y="640" width="180" height="140"/>
+    <text class="txt title" x="1080" y="700" font-size="16" text-anchor="middle">DOCKER SANDBOX
+    </text>
+    <text class="muted" x="1080" y="724" font-size="12" text-anchor="middle">warm pool of 2</text>
+    <text class="muted" x="1080" y="742" font-size="12" text-anchor="middle">no network · seccomp
+    </text>
+  </g>
+
+  <path class="line" d="M600,670 V706" marker-end="url(#arrow-small)"/>
+  <text class="note" x="610" y="695" font-size="11">1 insert</text>
+  <path class="line" d="M760,761 H966" marker-end="url(#arrow-small)"/>
+  <text class="note" x="772" y="778" font-size="11">2 worker claims, runs code</text>
+  <path class="line" d="M974,702 H720 V678" marker-end="url(#arrow-small)"/>
+  <text class="note" x="772" y="718" font-size="11">3 verdict</text>
+  <text class="note" x="960" y="598" font-size="11">4 runner.submission.state</text>
+
+  <path class="line" d="M420,240 H512" marker-end="url(#arrow-small)"/>
+  <path class="line" d="M420,358 H512" marker-end="url(#arrow-small)"/>
+  <path class="line" d="M420,500 H512" marker-end="url(#arrow-small)"/>
+
+  <path class="session" d="M420,388 H512" marker-end="url(#arrow-small)"/>
+  <text class="note" x="432" y="406" font-size="11">session check</text>
+  <path class="session" d="M650,280 V322" marker-end="url(#arrow-small)"/>
+  <path class="session" d="M650,460 V418" marker-end="url(#arrow-small)"/>
+  <text class="note" x="660" y="310" font-size="11">session check</text>
+  <text class="note" x="660" y="442" font-size="11">session check</text>
+
+  <g>
+    <path class="line" d="M780,266 H832"/>
+    <path class="db" d="M832,246 V294 A58,9 0 0 0 948,294 V246 z"/>
+    <ellipse class="db-top" cx="890" cy="246" rx="58" ry="9"/>
+    <text class="txt title" x="890" y="282" font-size="12" text-anchor="middle">problem db</text>
+
+    <path class="line" d="M780,396 H832"/>
+    <path class="db" d="M832,376 V424 A58,9 0 0 0 948,424 V376 z"/>
+    <ellipse class="db-top" cx="890" cy="376" rx="58" ry="9"/>
+    <text class="txt title" x="890" y="412" font-size="12" text-anchor="middle">auth db</text>
+
+    <path class="line" d="M780,526 H832"/>
+    <path class="db" d="M832,506 V554 A58,9 0 0 0 948,554 V506 z"/>
+    <ellipse class="db-top" cx="890" cy="506" rx="58" ry="9"/>
+    <text class="txt title" x="890" y="542" font-size="12" text-anchor="middle">contest db</text>
+
+    <path class="line" d="M780,656 H832"/>
+    <path class="db" d="M832,636 V684 A58,9 0 0 0 948,684 V636 z"/>
+    <ellipse class="db-top" cx="890" cy="636" rx="58" ry="9"/>
+    <text class="txt title" x="890" y="672" font-size="12" text-anchor="middle">runner db</text>
+
+    <path class="line" d="M780,906 H832"/>
+    <path class="db" d="M832,886 V934 A58,9 0 0 0 948,934 V886 z"/>
+    <ellipse class="db-top" cx="890" cy="886" rx="58" ry="9"/>
+    <text class="txt title" x="890" y="922" font-size="12" text-anchor="middle">notification db
+    </text>
+  </g>
+
+  <path class="outbox" d="M780,214 H1010 V156" marker-end="url(#arrow-outbox)"/>
+  <path class="consume" d="M1024,150 V226 H788" marker-end="url(#arrow-consume)"/>
+
+  <path class="outbox" d="M780,344 H1080 V156" marker-end="url(#arrow-outbox)"/>
+
+  <path class="outbox" d="M780,474 H1140 V156" marker-end="url(#arrow-outbox)"/>
+  <path class="consume" d="M1154,150 V486 H788" marker-end="url(#arrow-consume)"/>
+
+  <path class="outbox" d="M780,604 H1200 V156" marker-end="url(#arrow-outbox)"/>
+  <path class="consume" d="M1214,150 V616 H788" marker-end="url(#arrow-consume)"/>
+
+  <path class="consume" d="M1270,150 V866 H788" marker-end="url(#arrow-consume)"/>
+
+  <g>
+    <path class="outbox" d="M1310,600 H1350" marker-end="url(#arrow-outbox)"/>
+    <text class="note" x="1362" y="597" font-size="13">outbox, same</text>
+    <text class="note" x="1362" y="614" font-size="13">transaction as write</text>
+    <path class="consume" d="M1310,650 H1350" marker-end="url(#arrow-consume)"/>
+    <text class="note" x="1362" y="647" font-size="13">consume into</text>
+    <text class="note" x="1362" y="664" font-size="13">local replicas</text>
+    <path class="session" d="M1310,700 H1350" marker-end="url(#arrow-small)"/>
+    <text class="note" x="1362" y="705" font-size="13">session check</text>
+  </g>
+</svg>
