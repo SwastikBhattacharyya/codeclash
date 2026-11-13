@@ -1,0 +1,9 @@
+**
+!gradlew
+!gradle/
+!settings.gradle.kts
+!lib/
+!app/*-service/
+**/build/
+**/.gradle/
+**/src/test/
