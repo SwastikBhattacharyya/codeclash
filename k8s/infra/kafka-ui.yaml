@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ui
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/name: kafka-ui
+    app.kubernetes.io/part-of: codeclash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kafka-ui
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kafka-ui
+        app.kubernetes.io/part-of: codeclash
+      annotations:
+        codeclash.dev/config-hash: "${OPS_HASH}"
+    spec:
+      containers:
+        - name: kafka-ui
+          image: ghcr.io/kafbat/kafka-ui:v1.5.0
+          env:
+            - name: KAFKA_CLUSTERS_0_NAME
+              value: codeclash
+            - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
+              value: redpanda:9092
+            - name: DYNAMIC_CONFIG_ENABLED
+              value: "false"
+            - name: AUTH_TYPE
+              value: LOGIN_FORM
+            - name: SPRING_SECURITY_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ops
+                  key: username
+            - name: SPRING_SECURITY_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ops
+                  key: password
+            - name: JAVA_OPTS
+              value: "-XX:MaxRAMPercentage=60"
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: 256Mi
+            limits:
+              memory: 768Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ui
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/name: kafka-ui
+    app.kubernetes.io/part-of: codeclash
+spec:
+  selector:
+    app.kubernetes.io/name: kafka-ui
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
