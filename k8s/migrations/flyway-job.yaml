@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${DB_SERVICE}-migrate
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/name: ${DB_SERVICE}-migrate
+    app.kubernetes.io/part-of: codeclash
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ${DB_SERVICE}-migrate
+        app.kubernetes.io/part-of: codeclash
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: flyway
+          image: flyway/flyway:12.4.0
+          command: ["sh", "-c", "mkdir -p /tmp/sql && cp /migrations/*.sql /tmp/sql/ && exec flyway ${FLYWAY_COMMAND}"]
+          env:
+            - name: FLYWAY_URL
+              value: "${DB_URL}"
+            - name: FLYWAY_USER
+              valueFrom:
+                secretKeyRef:
+                  name: ${DB_SERVICE}-db
+                  key: username
+            - name: FLYWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ${DB_SERVICE}-db
+                  key: password
+            - name: FLYWAY_LOCATIONS
+              value: filesystem:/tmp/sql
+            - name: FLYWAY_CONNECT_RETRIES
+              value: "30"
+            - name: FLYWAY_CLEAN_DISABLED
+              value: "${FLYWAY_CLEAN_DISABLED}"
+          resources:
+            requests:
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - name: migrations
+              mountPath: /migrations
+      volumes:
+        - name: migrations
+          configMap:
+            name: ${DB_SERVICE}-migrations
