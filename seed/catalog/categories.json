@@ -1,0 +1,10 @@
+[
+  { "name": "Arrays", "description": "Problems built around linear sequences, ranges and running totals." },
+  { "name": "Searching", "description": "Finding an answer efficiently by narrowing the search space." },
+  { "name": "Graphs", "description": "Nodes, edges, connectivity, ordering and shortest paths." },
+  { "name": "Dynamic Programming", "description": "Combining answers of overlapping subproblems." },
+  { "name": "Strings", "description": "Text processing, matching and pattern search." },
+  { "name": "Math", "description": "Number theory and arithmetic reasoning." },
+  { "name": "Data Structures", "description": "Stacks, trees and other structures that make queries fast." },
+  { "name": "Greedy", "description": "Building an answer from locally optimal choices." }
+]
