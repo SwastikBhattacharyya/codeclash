@@ -1,0 +1,22 @@
+{
+  "name": "Autumn Sprint",
+  "description": "Leaves are falling and so are the time limits. Autumn Sprint is a two-hour warm-up with three problems worth 100, 200 and 300 points. Each problem scores once, on its first accepted submission. Ties on points go to whoever reached their score first.",
+  "startOffsetMinutes": -3000,
+  "durationMinutes": 120,
+  "questions": [
+    { "slug": "pair-sum-count", "points": 100 },
+    { "slug": "budget-packing", "points": 200 },
+    { "slug": "sensor-minimums", "points": 300 }
+  ],
+  "registrations": [
+    "byte_wizard",
+    "quick_sort_queen",
+    "null_pointer",
+    "lambda_lynx",
+    "heap_hopper",
+    "bit_shifter",
+    "stack_smasher",
+    "recursion_ronin",
+    "segfault_sam"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "title": "Pair Sum Count",
+  "summary": "Count the pairs of readings that add up to a target.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Arrays"
+  ],
+  "tags": [
+    "easy",
+    "hashing"
+  ],
+  "generatedTests": 8
+}

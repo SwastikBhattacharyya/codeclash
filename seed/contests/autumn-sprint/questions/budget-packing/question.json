@@ -1,0 +1,15 @@
+{
+  "title": "Budget Packing",
+  "summary": "Pick gear under a budget to carry the most value.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Dynamic Programming"
+  ],
+  "tags": [
+    "medium",
+    "dynamic-programming",
+    "knapsack"
+  ],
+  "generatedTests": 8
+}

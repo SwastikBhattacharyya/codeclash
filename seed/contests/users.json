@@ -1,0 +1,12 @@
+[
+  { "username": "byte_wizard", "name": "Byte Wizard" },
+  { "username": "quick_sort_queen", "name": "Quick Sort Queen" },
+  { "username": "null_pointer", "name": "Null Pointer" },
+  { "username": "lambda_lynx", "name": "Lambda Lynx" },
+  { "username": "heap_hopper", "name": "Heap Hopper" },
+  { "username": "bit_shifter", "name": "Bit Shifter" },
+  { "username": "stack_smasher", "name": "Stack Smasher" },
+  { "username": "recursion_ronin", "name": "Recursion Ronin" },
+  { "username": "segfault_sam", "name": "Segfault Sam" },
+  { "username": "greedy_goblin", "name": "Greedy Goblin" }
+]

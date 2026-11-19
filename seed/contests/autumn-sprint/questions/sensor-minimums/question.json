@@ -1,0 +1,14 @@
+{
+  "title": "Sensor Minimums",
+  "summary": "Track the coldest reading in a range while sensors keep changing.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Data Structures"
+  ],
+  "tags": [
+    "hard",
+    "segment-tree"
+  ],
+  "generatedTests": 8
+}
