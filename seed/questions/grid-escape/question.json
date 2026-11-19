@@ -1,0 +1,15 @@
+{
+  "title": "Grid Escape",
+  "summary": "Find the fewest steps from the start to the exit of a walled grid.",
+  "maxRunTimeMs": 1000,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs"
+  ],
+  "tags": [
+    "medium",
+    "bfs",
+    "grid"
+  ],
+  "generatedTests": 8
+}

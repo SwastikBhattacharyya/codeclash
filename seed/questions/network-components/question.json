@@ -1,0 +1,15 @@
+{
+  "title": "Network Components",
+  "summary": "Link computers and answer whether two of them can already talk to each other.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs",
+    "Data Structures"
+  ],
+  "tags": [
+    "medium",
+    "dsu"
+  ],
+  "generatedTests": 8
+}

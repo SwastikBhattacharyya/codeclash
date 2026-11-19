@@ -1,0 +1,15 @@
+{
+  "title": "Longest Budget Window",
+  "summary": "Find the longest run of consecutive days whose total cost fits the budget.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Arrays"
+  ],
+  "tags": [
+    "medium",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "generatedTests": 8
+}

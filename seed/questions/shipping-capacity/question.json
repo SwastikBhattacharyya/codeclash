@@ -1,0 +1,16 @@
+{
+  "title": "Shipping Capacity",
+  "summary": "Find the smallest truck capacity that ships every package in order within the given days.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Searching",
+    "Greedy"
+  ],
+  "tags": [
+    "medium",
+    "binary-search",
+    "greedy"
+  ],
+  "generatedTests": 8
+}
