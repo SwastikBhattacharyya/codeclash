@@ -1,0 +1,17 @@
+{
+  "title": "Family Tree Queries",
+  "summary": "Find the closest common ancestor of two people in a family tree.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs",
+    "Data Structures"
+  ],
+  "tags": [
+    "hard",
+    "trees",
+    "lca",
+    "binary-lifting"
+  ],
+  "generatedTests": 8
+}

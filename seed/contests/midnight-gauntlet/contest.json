@@ -1,0 +1,21 @@
+{
+  "name": "Midnight Gauntlet",
+  "description": "The lights are off, the coffee is on. Midnight Gauntlet is a week-long marathon with three problems worth 100, 200 and 300 points. Each problem scores once, on its first accepted submission. Ties on points go to whoever reached their score first.",
+  "startOffsetMinutes": -60,
+  "durationMinutes": 10140,
+  "questions": [
+    { "slug": "meeting-picker", "points": 100 },
+    { "slug": "orchard-paths", "points": 200 },
+    { "slug": "family-tree-queries", "points": 300 }
+  ],
+  "registrations": [
+    "quick_sort_queen",
+    "byte_wizard",
+    "greedy_goblin",
+    "lambda_lynx",
+    "null_pointer",
+    "heap_hopper",
+    "bit_shifter",
+    "recursion_ronin"
+  ]
+}

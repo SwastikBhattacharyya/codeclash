@@ -1,0 +1,22 @@
+[
+  { "user": "greedy_goblin", "question": "meeting-picker", "variant": "buggy", "minute": 2 },
+  { "user": "quick_sort_queen", "question": "meeting-picker", "variant": "correct", "minute": 3 },
+  { "user": "byte_wizard", "question": "meeting-picker", "variant": "correct", "minute": 5 },
+  { "user": "greedy_goblin", "question": "meeting-picker", "variant": "correct", "minute": 6 },
+  { "user": "lambda_lynx", "question": "meeting-picker", "variant": "correct", "minute": 8 },
+  { "user": "quick_sort_queen", "question": "orchard-paths", "variant": "correct", "minute": 11 },
+  { "user": "null_pointer", "question": "meeting-picker", "variant": "correct", "minute": 12 },
+  { "user": "bit_shifter", "question": "meeting-picker", "variant": "re", "minute": 14 },
+  { "user": "bit_shifter", "question": "meeting-picker", "variant": "correct", "minute": 17 },
+  { "user": "lambda_lynx", "question": "orchard-paths", "variant": "naive", "minute": 19 },
+  { "user": "greedy_goblin", "question": "orchard-paths", "variant": "correct", "minute": 22 },
+  { "user": "heap_hopper", "question": "orchard-paths", "variant": "correct", "minute": 26 },
+  { "user": "byte_wizard", "question": "family-tree-queries", "variant": "correct", "minute": 27 },
+  { "user": "heap_hopper", "question": "meeting-picker", "variant": "ce", "minute": 29 },
+  { "user": "quick_sort_queen", "question": "family-tree-queries", "variant": "buggy", "minute": 30 },
+  { "user": "lambda_lynx", "question": "orchard-paths", "variant": "correct", "minute": 33 },
+  { "user": "byte_wizard", "question": "orchard-paths", "variant": "buggy", "minute": 38 },
+  { "user": "quick_sort_queen", "question": "family-tree-queries", "variant": "correct", "minute": 41 },
+  { "user": "null_pointer", "question": "family-tree-queries", "variant": "naive", "minute": 45 },
+  { "user": "recursion_ronin", "question": "orchard-paths", "variant": "naive", "minute": 50 }
+]

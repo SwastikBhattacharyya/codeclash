@@ -1,0 +1,15 @@
+{
+  "title": "Meeting Picker",
+  "summary": "Attend as many meetings as possible without overlaps.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Greedy"
+  ],
+  "tags": [
+    "easy",
+    "greedy",
+    "sorting"
+  ],
+  "generatedTests": 8
+}

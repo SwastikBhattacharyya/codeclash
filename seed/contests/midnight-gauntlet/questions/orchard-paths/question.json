@@ -1,0 +1,15 @@
+{
+  "title": "Orchard Paths",
+  "summary": "Count the monotone paths through an orchard with fallen trees.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Dynamic Programming"
+  ],
+  "tags": [
+    "medium",
+    "dynamic-programming",
+    "grid"
+  ],
+  "generatedTests": 8
+}
