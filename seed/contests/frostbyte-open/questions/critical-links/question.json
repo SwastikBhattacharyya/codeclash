@@ -1,0 +1,15 @@
+{
+  "title": "Critical Links",
+  "summary": "Find the network links whose failure splits the network.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs"
+  ],
+  "tags": [
+    "hard",
+    "dfs",
+    "bridges"
+  ],
+  "generatedTests": 8
+}

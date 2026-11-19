@@ -1,0 +1,15 @@
+{
+  "title": "Power Mod",
+  "summary": "Raise huge numbers to huge powers modulo m.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Math"
+  ],
+  "tags": [
+    "easy",
+    "number-theory",
+    "fast-exponentiation"
+  ],
+  "generatedTests": 8
+}

@@ -1,0 +1,19 @@
+{
+  "name": "Frostbyte Open",
+  "description": "Winter is coming for your runtime. Frostbyte Open is a two-hour round with three problems worth 100, 200 and 300 points. Each problem scores once, on its first accepted submission. Ties on points go to whoever reached their score first. Register before it starts!",
+  "startOffsetMinutes": 4320,
+  "durationMinutes": 120,
+  "questions": [
+    { "slug": "power-mod", "points": 100 },
+    { "slug": "delivery-tour", "points": 200 },
+    { "slug": "critical-links", "points": 300 }
+  ],
+  "registrations": [
+    "byte_wizard",
+    "quick_sort_queen",
+    "null_pointer",
+    "lambda_lynx",
+    "heap_hopper",
+    "greedy_goblin"
+  ]
+}

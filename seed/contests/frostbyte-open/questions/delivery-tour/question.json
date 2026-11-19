@@ -1,0 +1,16 @@
+{
+  "title": "Delivery Tour",
+  "summary": "Find the cheapest round trip that visits every drop-off point.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Dynamic Programming",
+    "Graphs"
+  ],
+  "tags": [
+    "medium",
+    "dynamic-programming",
+    "bitmask-dp"
+  ],
+  "generatedTests": 8
+}
