@@ -1,0 +1,15 @@
+{
+  "title": "Pattern Occurrences",
+  "summary": "Count how many times a pattern appears in a long text, overlaps included.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Strings"
+  ],
+  "tags": [
+    "medium",
+    "kmp",
+    "string-matching"
+  ],
+  "generatedTests": 8
+}

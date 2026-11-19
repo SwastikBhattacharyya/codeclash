@@ -1,0 +1,15 @@
+{
+  "title": "Course Order",
+  "summary": "Find the alphabetically first order to take every course, respecting prerequisites.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs"
+  ],
+  "tags": [
+    "medium",
+    "topological-sort",
+    "priority-queue"
+  ],
+  "generatedTests": 8
+}

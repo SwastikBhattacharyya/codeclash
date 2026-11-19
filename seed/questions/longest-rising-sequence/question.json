@@ -1,0 +1,16 @@
+{
+  "title": "Longest Rising Sequence",
+  "summary": "Find the length of the longest strictly increasing subsequence.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Dynamic Programming",
+    "Searching"
+  ],
+  "tags": [
+    "medium",
+    "dynamic-programming",
+    "binary-search"
+  ],
+  "generatedTests": 8
+}
