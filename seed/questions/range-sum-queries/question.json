@@ -1,0 +1,14 @@
+{
+  "title": "Range Sum Queries",
+  "summary": "Answer many sum queries over fixed ranges of an array.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Arrays"
+  ],
+  "tags": [
+    "easy",
+    "prefix-sums"
+  ],
+  "generatedTests": 8
+}

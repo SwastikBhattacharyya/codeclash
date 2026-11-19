@@ -1,0 +1,15 @@
+{
+  "title": "Next Taller Tower",
+  "summary": "For every tower in a skyline, find the nearest taller tower to its right.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Data Structures"
+  ],
+  "tags": [
+    "easy",
+    "stack",
+    "monotonic-stack"
+  ],
+  "generatedTests": 8
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Prime Count Queries",
+  "summary": "Count the primes inside many ranges of numbers up to ten million.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Math"
+  ],
+  "tags": [
+    "easy",
+    "sieve",
+    "number-theory",
+    "prefix-sums"
+  ],
+  "generatedTests": 8
+}
