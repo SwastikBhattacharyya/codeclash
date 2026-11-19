@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+if ! command -v go >/dev/null 2>&1; then
+  printf 'codeclash needs Go 1.26 or newer: https://go.dev/doc/install\n' >&2
+  printf '  Arch/CachyOS: sudo pacman -S go\n  Debian/Ubuntu: install the tarball from go.dev, the apt package is usually too old\n' >&2
+  exit 1
+fi
+
+bin="${XDG_CACHE_HOME:-$HOME/.cache}/codeclash/bin/codeclash"
+mkdir -p "$(dirname -- "$bin")"
+go build -C "$root/tools/codeclash" -o "$bin" .
+
+CODECLASH_ROOT=$root exec "$bin" "$@"
