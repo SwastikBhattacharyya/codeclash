@@ -1,0 +1,16 @@
+{
+  "title": "Cheapest Route",
+  "summary": "Find the cheapest cost to reach every city from the capital over one-way roads.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Graphs"
+  ],
+  "tags": [
+    "hard",
+    "dijkstra",
+    "shortest-path",
+    "priority-queue"
+  ],
+  "generatedTests": 8
+}

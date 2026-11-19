@@ -1,0 +1,15 @@
+{
+  "title": "Inversion Count",
+  "summary": "Count the pairs of positions that appear in the wrong order.",
+  "maxRunTimeMs": 500,
+  "maxRamLimitMb": 256,
+  "categories": [
+    "Data Structures"
+  ],
+  "tags": [
+    "hard",
+    "fenwick-tree",
+    "divide-and-conquer"
+  ],
+  "generatedTests": 8
+}
